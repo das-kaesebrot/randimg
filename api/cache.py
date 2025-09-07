@@ -1,4 +1,5 @@
 import os
+import random
 from PIL import Image
 from typing import Dict, Union
 from .classes import CachedImage
@@ -32,4 +33,7 @@ class Cache:
 
     def get(self, id: str) -> Union[CachedImage, None]:
         return self.img_dict.get(id)
+    
+    def get_random(self) -> tuple[str, CachedImage]:
+        return random.choice(list(self.img_dict.items()))
     
