@@ -13,6 +13,9 @@ templates = Jinja2Templates(directory="templates")
 
 cache = Cache("assets/images")
 
+def get_filename(image_id: str, image_data: Image):
+    return f"{image_id}_{image_data.width}x{image_data.height}.{image_data.format.lower()}"
+
 def return_and_resize_image(image_id: str, image: CachedImage, width: Union[int, None] = None, height: Union[int, None] = None, download: bool = False) -> StreamingResponse:
     img_data = ImageUtils.resize(image.data, width, height)
     
@@ -22,7 +25,7 @@ def return_and_resize_image(image_id: str, image: CachedImage, width: Union[int,
     
     content_disposition = "inline"
     if download:
-        content_disposition = f'attachment; filename="{image_id}_{img_data.width}x{img_data.height}.{img_data.format.lower()}"'
+        content_disposition = f'attachment; filename="{get_filename(image_id, img_data)}"'
     
     return StreamingResponse(buf, media_type=image.media_type, headers={'Content-Disposition': content_disposition, 'X-Image-Id': f'{image_id}'})
 
