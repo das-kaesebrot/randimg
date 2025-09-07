@@ -5,14 +5,29 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </head>
 <body>
-
-
     <div class="text-center">
-        <h1>Image {{ image_id }}</h1>
-        <img src="{{ url_for('api_get_image', image_id=image_id).include_query_params(height=512) }}" class="rounded mx-auto d-block">
+        <h2>{{ image_id }}</h2>
+        <img id="image" class="rounded mx-auto d-block img-fluid" />
         </br>
-        <a href="{{ url_for('api_get_image', image_id=image_id).include_query_params(download=true) }}" role="button" class="btn btn-primary">Download</a>
-        <a href="{{ url_for('page_redirect_rand_image') }}" role="button" class="btn btn-primary">Random</a>
+        <a id="download" role="button" class="btn btn-primary" download="{{ image_filename }}">Download current resolution</a>
+        <a role="button" class="btn btn-primary" href="{{ url_for('api_get_image', image_id=image_id).include_query_params(download=True) }}";>Download original</a>
+        <a href="{{ url_for('page_redirect_rand_image') }}" role="button" class="btn btn-primary">New random image</a>
     </div>
+
+    <script>
+        const imageUrl = "{{ url_for('api_get_image', image_id=image_id).include_query_params(height=height) }}";
+
+        fetch(imageUrl)
+            .then(res => res.blob())
+            .then(blob => {
+                const blobUrl = URL.createObjectURL(blob);
+
+                document.getElementById("image").src = blobUrl;
+
+                const downloadLink = document.getElementById("download");
+                downloadLink.href = blobUrl;
+            })
+            .catch(err => console.error("Error loading image:", err));
+    </script>
 </body>
 </html>

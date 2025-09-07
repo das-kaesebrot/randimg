@@ -3,6 +3,7 @@ from typing import Union
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse, HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from PIL.Image import Image
 
 from api.cache import Cache
 from api.classes import CachedImage, FaviconResponse
@@ -43,7 +44,9 @@ async def page_redirect_rand_image(request: Request):
 
 @app.get("/{image_id}", response_class=HTMLResponse)
 async def page_get_image(request: Request, image_id: str):
-    return templates.TemplateResponse(request=request, name="image.html", context={"image_id": image_id})
+    image = cache.get(image_id)
+    filename = get_filename(image_id=image_id, image_data=image.data)
+    return templates.TemplateResponse(request=request, name="image.html", context={"image_id": image_id, "image_filename": filename, "height": 512})
 
 @app.get("/api/img/{image_id}")
 async def api_get_image(image_id: str, width: Union[int, None] = None, height: Union[int, None] = None, download: bool = False):
