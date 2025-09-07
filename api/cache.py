@@ -16,7 +16,7 @@ class Cache:
         images: list[Image.Image] = []
         
         for filename in os.listdir(image_dir):
-            if filename.endswith(".jpg") or filename.endswith(".png"):
+            if filename.endswith(".jpg") or filename.endswith(".jpeg") or filename.endswith(".png"):
                 img = Image.open(filename)
                 img.load()
                 images.append(img)
