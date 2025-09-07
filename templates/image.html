@@ -1,0 +1,18 @@
+<html data-bs-theme="dark">
+<head>
+    <title>Image {{ image_id }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+</head>
+<body>
+
+
+    <div class="text-center">
+        <h1>Image {{ image_id }}</h1>
+        <img src="{{ url_for('api_get_image', image_id=image_id).include_query_params(height=512) }}" class="rounded mx-auto d-block">
+        </br>
+        <a href="{{ url_for('api_get_image', image_id=image_id).include_query_params(download=true) }}" role="button" class="btn btn-primary">Download</a>
+        <a href="{{ url_for('page_redirect_rand_image') }}" role="button" class="btn btn-primary">Random</a>
+    </div>
+</body>
+</html>
