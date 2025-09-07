@@ -30,7 +30,7 @@ def return_and_resize_image(image_id: str, image: CachedImage, width: Union[int,
     if download:
         content_disposition = f'attachment; filename="{get_filename(image_id, img_data)}"'
     
-    return StreamingResponse(buf, media_type=image.media_type, headers={'Content-Disposition': content_disposition, 'X-Image-Id': f'{image_id}'})
+    return StreamingResponse(buf, media_type=image.media_type, headers={'Content-Disposition': content_disposition, 'X-Image-Id': f'{image_id}', "Cache-Control": "max-age=2592000, public, no-transform"})
 
 @app.get("/favicon.ico", response_class=FaviconResponse)
 async def get_favicon():
