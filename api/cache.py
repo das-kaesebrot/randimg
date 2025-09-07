@@ -34,6 +34,9 @@ class Cache:
     def get(self, id: str) -> Union[CachedImage, None]:
         return self.img_dict.get(id)
     
+    def get_random_id(self) -> str:
+        return random.choice(list(self.img_dict.keys()))
+    
     def get_random(self) -> tuple[str, CachedImage]:
         return random.choice(list(self.img_dict.items()))
     
