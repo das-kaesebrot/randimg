@@ -5,17 +5,63 @@
     <link rel="stylesheet" href="{{ url_for('static', path='/bootstrap/1756173047/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
 </head>
-<body>
-    <div class="text-center">
-        <h2>{{ image_id }}</h2>
-        <img id="image" class="rounded mx-auto d-block img-fluid" />
-        </br>
-        <a id="download" role="button" class="btn btn-primary" download="{{ image_filename }}">Download current resolution</a>
-        <a role="button" class="btn btn-primary" href="{{ url_for('api_get_image', image_id=image_id).include_query_params(download=True) }}";>Download original</a>
-        <a href="{{ url_for('page_redirect_rand_image') }}" role="button" class="btn btn-primary">New random image</a>
+<body class="d-flex flex-column vh-100">
+    <div class="container text-center d-flex flex-column h-100 py-3">
+        
+        <!-- Top section -->
+        <div>
+            <code>Image ID: {{ image_id }}</code>
+        </div>
+
+        <!-- Middle section with image + buttons -->
+        <div class="flex-grow-1 d-flex flex-column align-items-center justify-content-center">
+            <img id="image"
+                 class="rounded img-fluid object-fit-contain w-100 vh-50 w-md-75 vh-md-75" alt="Image {{ image_id }}" />
+            
+            <!-- Buttons, snug to image bottom -->
+            <div class="d-flex flex-column flex-md-row gap-2 mt-3">
+                <a id="download" role="button" class="btn btn-outline-primary" download="{{ image_filename }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+                    </svg> Current resolution
+                </a>
+                <a role="button" class="btn btn-outline-primary" 
+                   href="{{ url_for('api_get_image', image_id=image_id).include_query_params(download=True) }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+                    </svg> Original
+                </a>
+                <a id="clipboard-link" role="button" class="btn btn-secondary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-link-45deg" viewBox="0 0 16 16">
+                        <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1 1 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4 4 0 0 1-.128-1.287z"/>
+                        <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243z"/>
+                    </svg> Copy permalink
+                </a>
+                <a href="{{ url_for('page_redirect_rand_image') }}" role="button" class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dice-3" viewBox="0 0 16 16">
+                        <path d="M13 1a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2zM3 0a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V3a3 3 0 0 0-3-3z"/>
+                        <path d="M5.5 4a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m8 8a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m-4-4a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
+                    </svg> Random
+                </a>
+            </div>
+        </div>
     </div>
 
     <script>
+        window.addEventListener("load", (event) => {
+            document.getElementById('clipboard-link').addEventListener("click", async (e) => {
+                try {
+                    await navigator.clipboard.writeText('{{ url_for('page_get_image', image_id=image_id) }}');
+                    // TODO show toast here
+                    await new Promise(r => setTimeout(r, 1000));
+                } catch (err) {
+                    console.error('Failed to copy: ', err);
+                }
+            });
+        });
+
         const imageUrl = "{{ url_for('api_get_image', image_id=image_id).include_query_params(height=height) }}";
 
         fetch(imageUrl)
