@@ -1,4 +1,5 @@
 from io import BytesIO
+from typing import Union
 from PIL import Image
 
 
@@ -7,10 +8,20 @@ class ImageUtils:
         pass
 
     @staticmethod
-    def resize(image: Image.Image, width: int, height: int) -> Image.Image:
-        image.thumbnail((width, height))
+    def resize(image: Image.Image, width: Union[int, None], height: Union[int, None]) -> Image.Image:
+        if not width and not height:
+            return image # nothing to do
+        
+        if not width and height:
+            width = height
+        elif width and not height:
+            height = width
+        
+        copied_image = image.copy()
+        copied_image.thumbnail((width, height))
+        copied_image.format = image.format
 
-        return image
+        return copied_image
 
     @staticmethod
     def convert_to_unified_format(image: Image.Image) -> Image.Image:
