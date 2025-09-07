@@ -2,6 +2,7 @@ import io
 from typing import Union
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse, HTMLResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from PIL.Image import Image
 
@@ -10,6 +11,7 @@ from api.classes import CachedImage, FaviconResponse
 from api.image_utils import ImageUtils
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 cache = Cache("assets/images")
