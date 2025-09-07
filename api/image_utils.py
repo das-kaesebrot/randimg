@@ -6,7 +6,7 @@ class ImageUtils:
     def __init__(self):
         pass
 
-    @staticmethod()
+    @staticmethod
     def resize(image: Image.Image, width: int, height: int) -> Image.Image:
         image.thumbnail((width, height))
 
