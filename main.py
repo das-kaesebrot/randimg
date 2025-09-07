@@ -23,12 +23,12 @@ def return_and_resize_image(image_id: str, image: CachedImage, width: Union[int,
     
     return StreamingResponse(buf, media_type=image.media_type, headers={'Content-Disposition': content_disposition, 'X-Image-Id': f'{image_id}'})
 
-@app.get("/img/{image_id}")
-async def get_image(image_id: str, width: Union[int, None] = None, height: Union[int, None] = None, download: bool = False):
+@app.get("/api/img/{image_id}")
+async def api_get_image(image_id: str, width: Union[int, None] = None, height: Union[int, None] = None, download: bool = False):
     image = cache.get(image_id)    
     return return_and_resize_image(image_id, image, width, height, download)
 
-@app.get("/img")
-async def get_rand_image(width: Union[int, None] = None, height: Union[int, None] = None, download: bool = False):
+@app.get("/api/img")
+async def api_get_rand_image(width: Union[int, None] = None, height: Union[int, None] = None, download: bool = False):
     image_id, image = cache.get_random()    
     return return_and_resize_image(image_id, image, width, height, download)
