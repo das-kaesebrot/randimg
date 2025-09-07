@@ -1,16 +1,29 @@
 import base64
 from dataclasses import dataclass
 import hashlib
+from PIL import Image
 
 
 @dataclass
 class CachedImage:
-    width: int
-    height: int
-    data: bytes
-    media_type: str
+    data: Image.Image
     
-    def get_id(self) -> str:
-        hash = hashlib.sha256(self.data)
-        return base64.urlsafe_b64encode(hash.digest())
+    @property
+    def width(self) -> int:
+        return self.data.width
+
+    @property
+    def height(self) -> int:
+        return self.data.height
+    
+    @property
+    def media_type(self) -> str:
+        return Image.MIME.get(self.data.format.upper())
+    
+    @property
+    def id(self) -> str:
+        pixel_bytes = self.data.tobytes()
+        hash_input = f"{self.width}_{self.height}".encode("utf-8") + pixel_bytes
+        digest = hashlib.sha256(hash_input).digest()
+        return base64.urlsafe_b64encode(digest).decode("ascii")
     
