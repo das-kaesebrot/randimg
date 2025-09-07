@@ -1,5 +1,6 @@
 import base64
 from dataclasses import dataclass
+from fastapi.responses import Response
 import hashlib
 import io
 from PIL import Image
@@ -34,3 +35,6 @@ class CachedImage:
         buf.seek(0)
         return buf
     
+
+class FaviconResponse(Response):
+    media_type = "image/svg+xml"

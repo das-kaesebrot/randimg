@@ -5,7 +5,7 @@ from fastapi.responses import StreamingResponse, HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from api.cache import Cache
-from api.classes import CachedImage
+from api.classes import CachedImage, FaviconResponse
 from api.image_utils import ImageUtils
 
 app = FastAPI()
@@ -25,6 +25,14 @@ def return_and_resize_image(image_id: str, image: CachedImage, width: Union[int,
         content_disposition = f'attachment; filename="{image_id}_{img_data.width}x{img_data.height}.{img_data.format.lower()}"'
     
     return StreamingResponse(buf, media_type=image.media_type, headers={'Content-Disposition': content_disposition, 'X-Image-Id': f'{image_id}'})
+
+@app.get("/favicon.ico", response_class=FaviconResponse)
+async def get_favicon():
+    return (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
+        + '<text y=".9em" font-size="90">🦈</text>'
+        + "</svg>"
+    )
 
 @app.get("/", response_class=RedirectResponse)
 async def page_redirect_rand_image(request: Request):
