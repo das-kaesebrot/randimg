@@ -13,7 +13,7 @@ class ImageUtils:
         pass
 
     @staticmethod
-    def resize(image: Image.Image, width: Union[int, None], height: Union[int, None], copy: True) -> Image.Image:
+    def resize(image: Image.Image, width: Union[int, None] = None, height: Union[int, None] = None, copy: bool = True) -> Image.Image:
         if not width and not height:
             return image # nothing to do
         
