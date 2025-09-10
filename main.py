@@ -18,7 +18,7 @@ cache_dir = os.getenv(f"{ENV_PREFIX}_CACHE_DIR", "cache")
 site_title = os.getenv(f"{ENV_PREFIX}_SITE_TITLE", "Random image")
 
 app = FastAPI(title=site_title)
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory="resources/static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 cache = Cache(image_dir=source_image_dir, cache_dir=cache_dir)
