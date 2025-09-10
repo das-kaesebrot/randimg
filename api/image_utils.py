@@ -8,7 +8,7 @@ class ImageUtils:
         pass
 
     @staticmethod
-    def resize(image: Image.Image, width: Union[int, None], height: Union[int, None]) -> Image.Image:
+    def resize(image: Image.Image, width: Union[int, None], height: Union[int, None], copy: True) -> Image.Image:
         if not width and not height:
             return image # nothing to do
         
@@ -17,11 +17,15 @@ class ImageUtils:
         elif width and not height:
             height = width
         
-        copied_image = image.copy()
-        copied_image.thumbnail((width, height))
-        copied_image.format = image.format
+        new_image = image
+        
+        if copy:
+            new_image = image.copy()
+            
+        new_image.thumbnail((width, height))
+        new_image.format = image.format
 
-        return copied_image
+        return new_image
 
     @staticmethod
     def convert_to_unified_format(image: Image.Image) -> Image.Image:
