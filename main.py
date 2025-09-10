@@ -5,18 +5,19 @@ from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from api import __version__ as version
 from api.cache import Cache
 from api.classes import FaviconResponse, ImageMetadata
-
-app = FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
 
 ENV_PREFIX = "RANDIMG"
 
 source_image_dir = os.getenv(f"{ENV_PREFIX}_IMAGE_DIR", "assets/images")
 cache_dir = os.getenv(f"{ENV_PREFIX}_CACHE_DIR", "cache")
 site_title = os.getenv(f"{ENV_PREFIX}_SITE_TITLE", "Random image")
+
+app = FastAPI(title=site_title, version=version)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
 cache = Cache(image_dir=source_image_dir, cache_dir=cache_dir)
 
@@ -59,7 +60,7 @@ async def page_redirect_rand_image(request: Request, redirect: bool = False):
     return templates.TemplateResponse(
         request=request,
         name="image.html",
-        context={"site_title": site_title, "image_id": image_id, "image_filename": filename, "height": 512},
+        context={"site_title": site_title, "image_id": image_id, "image_filename": filename, "height": 512, "version": version},
     )
 
 
@@ -69,7 +70,7 @@ async def page_get_image(request: Request, image_id: str):
     return templates.TemplateResponse(
         request=request,
         name="image.html",
-        context={"site_title": site_title, "image_id": image_id, "image_filename": filename, "height": 512},
+        context={"site_title": site_title, "image_id": image_id, "image_filename": filename, "height": 512, "version": version},
     )
 
 
