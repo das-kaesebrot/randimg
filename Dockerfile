@@ -28,4 +28,6 @@ COPY --chown=1101:1101 main.py main.py
 
 USER randimg
 
+ENV RANDIMG_IMAGE_DIR="/var/assets"
+
 CMD [ "/usr/bin/env", "python3", "-m", "uvicorn", "main:app", "--host", "0.0.0.0" ]
