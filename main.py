@@ -101,7 +101,10 @@ async def api_get_image(
     height: Union[int, None] = None,
     download: bool = False,
 ):
-    return get_file_response(image_id, width=width, height=height, download=download)
+    if image_id.endswith(f".{Constants.DEFAULT_FORMAT}"):
+        image_id = image_id.rstrip(f".{Constants.DEFAULT_FORMAT}")
+        
+    return get_file_response(image_id=image_id, width=width, height=height, download=download)
 
 
 @app.get("/api/img")
