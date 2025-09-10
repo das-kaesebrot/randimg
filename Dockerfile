@@ -11,6 +11,7 @@ FROM python:3.12-alpine AS base
 ENV PYTHONUNBUFFERED=true
 
 ARG APP_ROOT=/usr/local/bin/randimg
+ARG APP_VERSION
 
 RUN adduser -u 1101 -D randimg
 RUN mkdir -pv ${APP_ROOT}
@@ -29,5 +30,6 @@ COPY --chown=1101:1101 main.py main.py
 USER randimg
 
 ENV RANDIMG_IMAGE_DIR="/var/assets"
+ENV APP_VERSION=${APP_VERSION}
 
 CMD [ "/usr/bin/env", "python3", "-m", "uvicorn", "main:app", "--host", "0.0.0.0" ]

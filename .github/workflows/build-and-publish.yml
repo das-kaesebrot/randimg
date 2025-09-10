@@ -43,6 +43,12 @@ jobs:
         with:
           images: ${{ vars.DOCKERHUB_IMAGENAME }}
           github-token: ${{ github.token }}
+      
+      - name: Set short git commit ref
+        id: vars
+        run: |
+          calculated_sha=$(git rev-parse --short ${{ github.sha }})
+          echo "COMMIT_SHORT_SHA=$calculated_sha-${{ github.ref_name }}" >> $GITHUB_ENV
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
@@ -54,3 +60,5 @@ jobs:
             ${{ vars.DOCKERHUB_IMAGENAME }}:latest
             ${{ vars.DOCKERHUB_IMAGENAME }}:${{ github.sha }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            APP_VERSION=${{ env.COMMIT_SHORT_SHA }}
