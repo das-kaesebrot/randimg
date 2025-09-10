@@ -44,12 +44,6 @@ class Cache:
     ) -> str:
         metadata = self._metadata_dict.get(id)
 
-        if not width:
-            width = metadata.original_width
-
-        if not height:
-            height = metadata.original_height
-
         width, height = Utils.clamp(width, 0, metadata.original_width), Utils.clamp(
             height, 0, metadata.original_height
         )
