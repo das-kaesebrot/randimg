@@ -92,7 +92,17 @@ class ImageUtils:
         metadata = ImageMetadata(original_width=rgb_image.width, original_height=rgb_image.height, media_type=Image.MIME.get(FORMAT.upper()), format=FORMAT)
         
         return (id, metadata)
+    
+    @staticmethod
+    def write_scaled_copy_from_source_filename_to_filesystem(*, id: str, source_filename: str, output_path: str, width: Union[int, None] = None, height: Union[int, None] = None):
+        source = Image.open(source_filename)
+        ImageUtils.write_scaled_copy_to_filesystem(source=source, output_path=output_path, width=width, height=height)
         
+    @staticmethod
+    def write_scaled_copy_to_filesystem(*, id: str, source: Image.Image,  output_path: str, width: Union[int, None] = None, height: Union[int, None] = None):
+        image = ImageUtils.resize(source, width, height, copy=False)
+        filename = os.path.join(output_path, ImageUtils.get_filename_with_image_data(id=id, data=image))
+        image.save(filename)
     
     @staticmethod
     def get_filename_with_image_data(*, id: str, data: Image.Image):
