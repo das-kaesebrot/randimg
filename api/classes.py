@@ -47,6 +47,9 @@ class ImageMetadata:
         
         return ImageUtils.get_filename(id=id, width=width, height=height, format=self.format)
     
+    @staticmethod
+    def from_image(image: Image.Image) -> "ImageMetadata":
+        return ImageMetadata(original_width=image.width, original_height=image.height, media_type=Image.MIME.get(image.format.upper()), format=image.format)
 
 class FaviconResponse(Response):
     media_type = "image/svg+xml"
