@@ -12,41 +12,52 @@ from .filename_utils import FilenameUtils
 MAX_SIZE = 2048
 FORMAT = "png"
 
+
 class ImageUtils:
     def __init__(self):
         pass
 
     @staticmethod
-    def resize(image: Image.Image, width: Union[int, None] = None, height: Union[int, None] = None, copy: bool = True) -> Image.Image:
+    def resize(
+        image: Image.Image,
+        width: Union[int, None] = None,
+        height: Union[int, None] = None,
+        copy: bool = True,
+    ) -> Image.Image:
         if not width and not height:
-            return image # nothing to do
-        
+            return image  # nothing to do
+
         if not width and height:
             width = height
         elif width and not height:
             height = width
-        
+
         new_image = image
-        
+
         if copy:
             new_image = image.copy()
-            
+
         new_image.thumbnail((width, height))
         new_image.format = image.format
 
         return new_image
-    
+
     @staticmethod
-    def calculate_scaled_size(original_width: int, original_height: int, width: Union[int, None] = None, height: Union[int, None] = None) -> tuple[int, int]:
+    def calculate_scaled_size(
+        original_width: int,
+        original_height: int,
+        width: Union[int, None] = None,
+        height: Union[int, None] = None,
+    ) -> tuple[int, int]:
         if not width and not height:
-            return original_width, original_height # nothing to do
-        
+            return original_width, original_height  # nothing to do
+
         if not width and height:
             width = height
         elif width and not height:
             height = width
-            
-        # copied from PIL codebase                
+
+        # copied from PIL codebase
         def preserve_aspect_ratio() -> tuple[int, int] | None:
             def round_aspect(number: float, key: Callable[[int], float]) -> int:
                 return max(min(math.floor(number), math.ceil(number), key=key), 1)
@@ -63,7 +74,7 @@ class ImageUtils:
             return x, y
 
         preserved_size = preserve_aspect_ratio()
-        
+
         return preserved_size
 
     @staticmethod
@@ -95,7 +106,9 @@ class ImageUtils:
         return new_image
 
     @staticmethod
-    def convert_to_unified_format_and_write_to_filesystem(output_path: str, image: Image.Image, force_write: bool = False) -> tuple[str, ImageMetadata]:
+    def convert_to_unified_format_and_write_to_filesystem(
+        output_path: str, image: Image.Image, force_write: bool = False
+    ) -> tuple[str, ImageMetadata]:
         """
         Generates a new image from an input image with the following properties:
         - RGB color palette (no alpha channel)
@@ -107,38 +120,66 @@ class ImageUtils:
             output_path (str): the path to write the image to (filename will be appended)
             image (PIL.Image.Image): the image to convert
         """
-        
+
         rgb_image = image.convert("RGB")
 
         max_size = MAX_SIZE
 
         if rgb_image.width > max_size or rgb_image.height > max_size:
             rgb_image = ImageUtils.resize(rgb_image, max_size, max_size, copy=False)
-                
+
         os.makedirs(output_path, exist_ok=True)
-        
+
         id = ImageUtils.get_id(data=rgb_image)
-        filename = os.path.join(output_path, FilenameUtils.get_filename(id=id, width=rgb_image.width, height=rgb_image.height, format=FORMAT))
-        
+        filename = os.path.join(
+            output_path,
+            FilenameUtils.get_filename(
+                id=id, width=rgb_image.width, height=rgb_image.height, format=FORMAT
+            ),
+        )
+
         if force_write or not os.path.isfile(filename):
             rgb_image.save(filename, format=FORMAT)
-        
-        metadata = ImageMetadata(original_width=rgb_image.width, original_height=rgb_image.height, media_type=Image.MIME.get(FORMAT.upper()), format=FORMAT)
-        
+
+        metadata = ImageMetadata(
+            original_width=rgb_image.width,
+            original_height=rgb_image.height,
+            media_type=Image.MIME.get(FORMAT.upper()),
+            format=FORMAT,
+        )
+
         return (id, metadata)
-    
+
     @staticmethod
-    def write_scaled_copy_from_source_filename_to_filesystem(*, id: str, source_filename: str, output_path: str, width: Union[int, None] = None, height: Union[int, None] = None) -> str:
+    def write_scaled_copy_from_source_filename_to_filesystem(
+        *,
+        id: str,
+        source_filename: str,
+        output_path: str,
+        width: Union[int, None] = None,
+        height: Union[int, None] = None,
+    ) -> str:
         source = Image.open(source_filename)
-        return ImageUtils.write_scaled_copy_to_filesystem(id=id, source=source, output_path=output_path, width=width, height=height)
-        
+        return ImageUtils.write_scaled_copy_to_filesystem(
+            id=id, source=source, output_path=output_path, width=width, height=height
+        )
+
     @staticmethod
-    def write_scaled_copy_to_filesystem(*, id: str, source: Image.Image,  output_path: str, width: Union[int, None] = None, height: Union[int, None] = None) -> str:
+    def write_scaled_copy_to_filesystem(
+        *,
+        id: str,
+        source: Image.Image,
+        output_path: str,
+        width: Union[int, None] = None,
+        height: Union[int, None] = None,
+    ) -> str:
         image = ImageUtils.resize(source, width, height, copy=False)
-        filename = os.path.join(output_path, FilenameUtils.get_filename_with_image_data(id=id, data=image))
+        filename = os.path.join(
+            output_path, FilenameUtils.get_filename_with_image_data(id=id, data=image)
+        )
         image.save(filename)
         return filename
-    
+
     @staticmethod
     def get_id(*, data: Image.Image) -> str:
         pixel_bytes = data.tobytes()
