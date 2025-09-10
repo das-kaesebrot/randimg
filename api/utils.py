@@ -3,5 +3,8 @@ class Utils:
         pass
 
     @staticmethod
-    def clamp(val, low, high):
-        return max(low, min(val, high))
+    def clamp(val, lower_bound, upper_bound):
+        if not val:
+            return
+
+        return min(max(val, lower_bound), upper_bound)
