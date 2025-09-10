@@ -1,3 +1,5 @@
+import base64
+import hashlib
 from io import BytesIO
 from typing import Union
 from PIL import Image
@@ -54,3 +56,10 @@ class ImageUtils:
         buf.seek(0)
         new_image = Image.open(buf)
         return new_image
+
+    @staticmethod
+    def get_id(*, data: Image.Image) -> str:
+        pixel_bytes = data.tobytes()
+        hash_input = f"{data.width}_{data.height}".encode("utf-8") + pixel_bytes
+        digest = hashlib.sha256(hash_input).digest()
+        return base64.urlsafe_b64encode(digest).decode("ascii").rstrip("=")

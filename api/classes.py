@@ -1,9 +1,9 @@
-import base64
 from dataclasses import dataclass
 from fastapi.responses import Response
-import hashlib
 import io
 from PIL import Image
+
+from .image_utils import ImageUtils
 
 
 @dataclass
@@ -24,10 +24,7 @@ class CachedImage:
     
     @property
     def id(self) -> str:
-        pixel_bytes = self.data.tobytes()
-        hash_input = f"{self.width}_{self.height}".encode("utf-8") + pixel_bytes
-        digest = hashlib.sha256(hash_input).digest()
-        return base64.urlsafe_b64encode(digest).decode("ascii").rstrip("=")
+        return ImageUtils.get_id(data=self.data)
     
     def get_bytesio(self) -> io.BytesIO:
         buf = io.BytesIO()
