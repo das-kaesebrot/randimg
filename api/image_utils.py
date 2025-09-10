@@ -7,6 +7,8 @@ from PIL import Image
 
 from .classes import ImageMetadata
 
+MAX_SIZE = 2048
+FORMAT = "png"
 
 class ImageUtils:
     def __init__(self):
@@ -49,13 +51,13 @@ class ImageUtils:
         """
         rgb_image = image.convert("RGB")
 
-        max_size = 2048
+        max_size = MAX_SIZE
 
         if rgb_image.width > max_size or rgb_image.height > max_size:
             rgb_image = ImageUtils.resize(rgb_image, max_size, max_size, copy=False)
 
         buf = BytesIO()
-        rgb_image.save(buf, format="png")
+        rgb_image.save(buf, format=FORMAT)
         buf.seek(0)
         new_image = Image.open(buf)
         return new_image
@@ -74,10 +76,9 @@ class ImageUtils:
             image (PIL.Image.Image): the image to convert
         """
         
-        FORMAT = "png"
         rgb_image = image.convert("RGB")
 
-        max_size = 2048
+        max_size = MAX_SIZE
 
         if rgb_image.width > max_size or rgb_image.height > max_size:
             rgb_image = ImageUtils.resize(rgb_image, max_size, max_size, copy=False)
