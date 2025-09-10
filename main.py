@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from api.cache import Cache
-from api.classes import FaviconResponse, ImageMetadata, TemplateResolutionMetadata
+from api.classes import FaviconResponse, ResolutionVariant, TemplateResolutionMetadata
 from api.image_utils import ImageUtils
 from api.constants import Constants
 
@@ -59,18 +59,30 @@ def get_file_response(*, image_id: str, width: Union[int, None] = None, height: 
         headers=headers,
     )
     
-def return_page(request: Request, image_id: str) -> HTMLResponse:
+def get_image_page_response(request: Request, image_id: str) -> HTMLResponse:
     filename = cache.get_filename_and_generate_copy_if_missing(image_id)
+    filename = os.path.basename(filename)
     
-    current_height = 512    
+    current_width = Constants.get_default_width()
     metadata = cache.get_metadata(image_id)
-    current_width, current_height = ImageUtils.calculate_scaled_size(original_width=metadata.original_width, original_height=metadata.original_height, height=current_height)
-    resolution_data = TemplateResolutionMetadata(original_width=metadata.original_width, original_height=metadata.original_height, current_width=current_width, current_height=current_height)
+    current_width, current_height = ImageUtils.calculate_scaled_size(original_width=metadata.original_width, original_height=metadata.original_height, width=current_width)
+    
+    variants = []
+    for width in sorted(Constants.ALLOWED_DIMENSIONS, reverse=True):
+        width, height = ImageUtils.calculate_scaled_size(original_width=metadata.original_width, original_height=metadata.original_height, width=width)
+        current = False
+        
+        if width == current_width:
+            current = True
+        
+        variants.append(ResolutionVariant(width=width, height=height, current=current))
+    
+    resolution_data = TemplateResolutionMetadata(current_width=current_width, current_height=current_height, variant_ladder=variants)
     
     return templates.TemplateResponse(
         request=request,
         name="image.html",
-        context={"site_title": site_title, "image_id": image_id, "image_filename": filename, "height": current_height, "version": version, "resolution_data": resolution_data},
+        context={"site_title": site_title, "image_id": image_id, "image_filename": filename, "version": version, "resolution_data": resolution_data},
     )
 
 
@@ -90,12 +102,12 @@ async def page_redirect_rand_image(request: Request, redirect: bool = False):
     if redirect:
         return RedirectResponse(request.url_for("page_get_image", image_id=image_id))
     
-    return return_page(request, image_id)
+    return get_image_page_response(request, image_id)
 
 
 @app.get("/{image_id}", response_class=HTMLResponse)
 async def page_get_image(request: Request, image_id: str):    
-    return return_page(request, image_id)
+    return get_image_page_response(request, image_id)
 
 
 @app.get("/api/img/{image_id}")

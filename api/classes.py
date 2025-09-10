@@ -34,10 +34,15 @@ class ImageMetadata:
 
 @dataclass
 class TemplateResolutionMetadata:
-    original_width: int
-    original_height: int
     current_width: int
     current_height: int
+    variant_ladder: list["ResolutionVariant"]
+
+@dataclass
+class ResolutionVariant:
+    width: int
+    height: int
+    current: bool
 
 class FaviconResponse(Response):
     media_type = "image/svg+xml"
