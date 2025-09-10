@@ -64,7 +64,7 @@ class ImageUtils:
         return new_image
 
     @staticmethod
-    def convert_to_unified_format_and_write_to_filesystem(output_path: str, image: Image.Image) -> tuple[str, ImageMetadata]:
+    def convert_to_unified_format_and_write_to_filesystem(output_path: str, image: Image.Image, force_write: bool = False) -> tuple[str, ImageMetadata]:
         """
         Generates a new image from an input image with the following properties:
         - RGB color palette (no alpha channel)
@@ -88,6 +88,9 @@ class ImageUtils:
         
         id = ImageUtils.get_id(data=rgb_image)
         filename = os.path.join(output_path, FilenameUtils.get_filename(id=id, width=rgb_image.width, height=rgb_image.height, format=FORMAT))
+        
+        if force_write or not os.path.isfile(filename):
+            rgb_image.save(filename, format=FORMAT)
         
         metadata = ImageMetadata(original_width=rgb_image.width, original_height=rgb_image.height, media_type=Image.MIME.get(FORMAT.upper()), format=FORMAT)
         
