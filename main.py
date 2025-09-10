@@ -24,25 +24,29 @@ templates = Jinja2Templates(directory="templates")
 cache = Cache(image_dir=source_image_dir, cache_dir=cache_dir)
 
 
-def get_file_response(
-    image_id: str, width: int, height: int, download: bool = False, set_cache_header: bool = True
-) -> FileResponse:
+def get_file_response(*, image_id: str, width: Union[int, None] = None, height: Union[int, None] = None, download: bool = False, set_cache_header: bool = True) -> FileResponse:
     if not cache.id_exists(image_id):
         raise HTTPException(status_code=404, detail=f"File with id='{image_id}' could not be found!")
     
-    if width and width not in Constants.ALLOWED_DIMENSIONS:
-        raise HTTPException(status_code=400, detail=f"Width is not of allowed value! Allowed values: {Constants.ALLOWED_DIMENSIONS}")
+    metadata = cache.get_metadata(image_id)
     
-    if height and height not in Constants.ALLOWED_DIMENSIONS:
-        raise HTTPException(status_code=400, detail=f"Height is not of allowed value! Allowed values: {Constants.ALLOWED_DIMENSIONS}")
+    if not height and width and width not in Constants.ALLOWED_DIMENSIONS:
+        _, height = ImageUtils.calculate_scaled_size(original_width=metadata.original_width, original_height=metadata.original_height, width=width)
+        if not height in Constants.ALLOWED_DIMENSIONS:
+            raise HTTPException(status_code=400, detail=f"Width is not of allowed value!")
+    
+    if not width and height and height not in Constants.ALLOWED_DIMENSIONS:
+        width, _ = ImageUtils.calculate_scaled_size(original_width=metadata.original_width, original_height=metadata.original_height, height=height)
+        
+        if not width in Constants.ALLOWED_DIMENSIONS:
+            raise HTTPException(status_code=400, detail=f"Height is not of allowed value!")
     
     filename = cache.get_filename_and_generate_copy_if_missing(
         image_id, width=width, height=height
     )
-    metadata = cache.get_metadata(image_id)
-            
+        
     headers = {
-        "Content-Disposition": "inline" if not download else f'attachment; filename="{filename}"',
+        "Content-Disposition": "inline" if not download else f'attachment; filename="{os.path.basename(filename)}"',
         "X-Image-Id": f"{image_id}",
     }
     
@@ -114,4 +118,4 @@ async def api_get_rand_image(
     download: bool = False,
 ):
     image_id = cache.get_random_id()
-    return get_file_response(image_id, width=width, height=height, download=download, set_cache_header=False)
+    return get_file_response(image_id=image_id, width=width, height=height, download=download, set_cache_header=False)
