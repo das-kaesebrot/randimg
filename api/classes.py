@@ -45,7 +45,8 @@ class ImageMetadata:
         width = self.original_width if not scaled_width else scaled_width
         height = self.original_height if not scaled_height else scaled_height
         
-        return ImageUtils.get_filename(id=id, width=width, height=height, format=format)
+        return ImageUtils.get_filename(id=id, width=width, height=height, format=self.format)
+    
 
 class FaviconResponse(Response):
     media_type = "image/svg+xml"
