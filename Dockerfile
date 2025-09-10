@@ -12,7 +12,7 @@ ENV PYTHONUNBUFFERED=true
 
 ARG APP_ROOT=/usr/local/bin/randimg
 
-RUN adduser -u 1100 -D randimg
+RUN adduser -u 1101 -D randimg
 RUN mkdir -pv ${APP_ROOT}
 RUN chown -R 1101:1101 ${APP_ROOT}
 
