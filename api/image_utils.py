@@ -4,7 +4,7 @@ from io import BytesIO
 import math
 import os
 from typing import Callable, Union
-from PIL import Image
+from PIL import Image, ImageOps
 
 from .classes import ImageMetadata
 from .filename_utils import FilenameUtils
@@ -122,6 +122,7 @@ class ImageUtils:
         """
 
         rgb_image = image.convert("RGB")
+        ImageOps.exif_transpose(rgb_image, in_place=True)
 
         max_size = MAX_SIZE
 
