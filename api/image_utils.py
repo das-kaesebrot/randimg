@@ -1,8 +1,9 @@
 import base64
 import hashlib
 from io import BytesIO
+import math
 import os
-from typing import Union
+from typing import Callable, Union
 from PIL import Image
 
 from .classes import ImageMetadata
@@ -34,6 +35,36 @@ class ImageUtils:
         new_image.format = image.format
 
         return new_image
+    
+    @staticmethod
+    def calculate_scaled_size(original_width: int, original_height: int, width: Union[int, None] = None, height: Union[int, None] = None) -> tuple[int, int]:
+        if not width and not height:
+            return original_width, original_height # nothing to do
+        
+        if not width and height:
+            width = height
+        elif width and not height:
+            height = width
+            
+        # copied from PIL codebase                
+        def preserve_aspect_ratio() -> tuple[int, int] | None:
+            def round_aspect(number: float, key: Callable[[int], float]) -> int:
+                return max(min(math.floor(number), math.ceil(number), key=key), 1)
+
+            x, y = width, height
+
+            aspect = original_width / original_height
+            if x / y >= aspect:
+                x = round_aspect(y * aspect, key=lambda n: abs(aspect - n / y))
+            else:
+                y = round_aspect(
+                    x / aspect, key=lambda n: 0 if n == 0 else abs(aspect - x / n)
+                )
+            return x, y
+
+        preserved_size = preserve_aspect_ratio()
+        
+        return preserved_size
 
     @staticmethod
     def convert_to_unified_format_in_buffer(image: Image.Image) -> Image.Image:
