@@ -70,7 +70,7 @@ async def page_redirect_rand_image(request: Request, redirect: bool = False):
     image_id = cache.get_random_id()
 
     if redirect:
-        return RedirectResponse(image_id)
+        return RedirectResponse(request.url_for("page_get_image", image_id=image_id))
     
     return return_page(request, image_id)
 
