@@ -28,7 +28,7 @@ class ImageUtils:
         return new_image
 
     @staticmethod
-    def convert_to_unified_format(image: Image.Image) -> Image.Image:
+    def convert_to_unified_format_in_buffer(image: Image.Image) -> Image.Image:
         """
         Generates a new image from an input image with the following properties:
         - RGB color palette (no alpha channel)
@@ -42,14 +42,14 @@ class ImageUtils:
         Returns:
             PIL.Image.Image: the converted image
         """
-        buf = BytesIO()
         rgb_image = image.convert("RGB")
 
         max_size = 2048
 
         if rgb_image.width > max_size or rgb_image.height > max_size:
-            rgb_image.thumbnail((max_size, max_size))
+            rgb_image = ImageUtils.resize(rgb_image, max_size, max_size, copy=False)
 
+        buf = BytesIO()
         rgb_image.save(buf, format="png")
         buf.seek(0)
         new_image = Image.open(buf)
