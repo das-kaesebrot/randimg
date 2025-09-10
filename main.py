@@ -5,7 +5,6 @@ from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from api import __version__ as version
 from api.cache import Cache
 from api.classes import FaviconResponse, ImageMetadata, TemplateResolutionMetadata
 
@@ -13,11 +12,12 @@ from api.image_utils import ImageUtils
 
 ENV_PREFIX = "RANDIMG"
 
+version = os.getenv("APP_VERSION", "local-dev")
 source_image_dir = os.getenv(f"{ENV_PREFIX}_IMAGE_DIR", "assets/images")
 cache_dir = os.getenv(f"{ENV_PREFIX}_CACHE_DIR", "cache")
 site_title = os.getenv(f"{ENV_PREFIX}_SITE_TITLE", "Random image")
 
-app = FastAPI(title=site_title, version=version)
+app = FastAPI(title=site_title)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
