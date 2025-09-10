@@ -6,6 +6,7 @@ from typing import Union
 from PIL import Image
 
 from .classes import ImageMetadata
+from .filename_utils import FilenameUtils
 
 MAX_SIZE = 2048
 FORMAT = "png"
@@ -85,9 +86,8 @@ class ImageUtils:
                 
         os.makedirs(output_path, exist_ok=True)
         
-        id = ImageUtils.get_id(rgb_image)        
-        filename = os.path.join(output_path, ImageUtils.get_filename(id=id, width=rgb_image.width, height=rgb_image.height, format=FORMAT))
-        rgb_image.save(filename, format=FORMAT)
+        id = ImageUtils.get_id(data=rgb_image)
+        filename = os.path.join(output_path, FilenameUtils.get_filename(id=id, width=rgb_image.width, height=rgb_image.height, format=FORMAT))
         
         metadata = ImageMetadata(original_width=rgb_image.width, original_height=rgb_image.height, media_type=Image.MIME.get(FORMAT.upper()), format=FORMAT)
         
@@ -101,16 +101,9 @@ class ImageUtils:
     @staticmethod
     def write_scaled_copy_to_filesystem(*, id: str, source: Image.Image,  output_path: str, width: Union[int, None] = None, height: Union[int, None] = None):
         image = ImageUtils.resize(source, width, height, copy=False)
-        filename = os.path.join(output_path, ImageUtils.get_filename_with_image_data(id=id, data=image))
+        filename = os.path.join(output_path, FilenameUtils.get_filename_with_image_data(id=id, data=image))
         image.save(filename)
-    
-    @staticmethod
-    def get_filename_with_image_data(*, id: str, data: Image.Image):
-        return ImageUtils.get_filename(id=id, width=data.width, height=data.height, format=data.format)
-    
-    @staticmethod
-    def get_filename(*, id: str, width: int, height: int, format: str):
-        return f"{id}_{width}x{height}.{format.lower()}"
+        return filename
     
     @staticmethod
     def get_id(*, data: Image.Image) -> str:

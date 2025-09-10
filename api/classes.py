@@ -45,7 +45,7 @@ class ImageMetadata:
         width = self.original_width if not scaled_width else scaled_width
         height = self.original_height if not scaled_height else scaled_height
         
-        return ImageUtils.get_filename(id=id, width=width, height=height, format=self.format)
+        return FilenameUtils.get_filename(id=id, width=width, height=height, format=self.format)
     
     @staticmethod
     def from_image(image: Image.Image) -> "ImageMetadata":
