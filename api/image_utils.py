@@ -97,12 +97,12 @@ class ImageUtils:
         return (id, metadata)
     
     @staticmethod
-    def write_scaled_copy_from_source_filename_to_filesystem(*, id: str, source_filename: str, output_path: str, width: Union[int, None] = None, height: Union[int, None] = None):
+    def write_scaled_copy_from_source_filename_to_filesystem(*, id: str, source_filename: str, output_path: str, width: Union[int, None] = None, height: Union[int, None] = None) -> str:
         source = Image.open(source_filename)
-        ImageUtils.write_scaled_copy_to_filesystem(source=source, output_path=output_path, width=width, height=height)
+        return ImageUtils.write_scaled_copy_to_filesystem(id=id, source=source, output_path=output_path, width=width, height=height)
         
     @staticmethod
-    def write_scaled_copy_to_filesystem(*, id: str, source: Image.Image,  output_path: str, width: Union[int, None] = None, height: Union[int, None] = None):
+    def write_scaled_copy_to_filesystem(*, id: str, source: Image.Image,  output_path: str, width: Union[int, None] = None, height: Union[int, None] = None) -> str:
         image = ImageUtils.resize(source, width, height, copy=False)
         filename = os.path.join(output_path, FilenameUtils.get_filename_with_image_data(id=id, data=image))
         image.save(filename)
