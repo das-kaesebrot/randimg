@@ -8,9 +8,10 @@ from PIL import Image, ImageOps
 
 from .classes import ImageMetadata
 from .filename_utils import FilenameUtils
+from .constants import Constants
 
-MAX_SIZE = 2048
-FORMAT = "png"
+MAX_SIZE = Constants.get_max_width()
+FORMAT = Constants.DEFAULT_FORMAT
 
 
 class ImageUtils:
