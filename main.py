@@ -16,6 +16,7 @@ ENV_PREFIX = "RANDIMG"
 
 source_image_dir = os.getenv(f"{ENV_PREFIX}_IMAGE_DIR", "assets/images")
 cache_dir = os.getenv(f"{ENV_PREFIX}_CACHE_DIR", "cache")
+site_title = os.getenv(f"{ENV_PREFIX}_SITE_TITLE", "Random image")
 
 cache = Cache(image_dir=source_image_dir, cache_dir=cache_dir)
 
@@ -58,7 +59,7 @@ async def page_redirect_rand_image(request: Request, redirect: bool = False):
     return templates.TemplateResponse(
         request=request,
         name="image.html",
-        context={"image_id": image_id, "image_filename": filename, "height": 512},
+        context={"site_title": site_title, "image_id": image_id, "image_filename": filename, "height": 512},
     )
 
 
@@ -68,7 +69,7 @@ async def page_get_image(request: Request, image_id: str):
     return templates.TemplateResponse(
         request=request,
         name="image.html",
-        context={"image_id": image_id, "image_filename": filename, "height": 512},
+        context={"site_title": site_title, "image_id": image_id, "image_filename": filename, "height": 512},
     )
 
 
