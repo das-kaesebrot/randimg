@@ -59,8 +59,11 @@
             document.getElementById('clipboard-link').addEventListener("click", async (e) => {
                 try {
                     await navigator.clipboard.writeText('{{ url_for('page_get_image', image_id=image_id) }}');
-                    // TODO show toast here
+                    e.srcElement.classList.remove("btn-secondary");
+                    e.srcElement.classList.add("btn-success");
                     await new Promise(r => setTimeout(r, 1000));
+                    e.srcElement.classList.remove("btn-success");
+                    e.srcElement.classList.add("btn-secondary");
                 } catch (err) {
                     console.error('Failed to copy: ', err);
                 }
