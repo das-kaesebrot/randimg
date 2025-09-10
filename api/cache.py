@@ -21,9 +21,9 @@ class Cache:
 
         for filename in os.listdir(image_dir):
             if (
-                filename.endswith(".jpg")
-                or filename.endswith(".jpeg")
-                or filename.endswith(".png")
+                filename.lower().endswith(".jpg")
+                or filename.lower().endswith(".jpeg")
+                or filename.lower().endswith(".png")
             ):
                 img = Image.open(os.path.join(image_dir, filename))
                 img.load()
