@@ -7,7 +7,9 @@ from fastapi.templating import Jinja2Templates
 
 from api import __version__ as version
 from api.cache import Cache
-from api.classes import FaviconResponse, ImageMetadata
+from api.classes import FaviconResponse, ImageMetadata, TemplateResolutionMetadata
+
+from api.image_utils import ImageUtils
 
 ENV_PREFIX = "RANDIMG"
 
@@ -38,6 +40,20 @@ def return_file(
             "Cache-Control": "max-age=2592000, public, no-transform",
         },
     )
+    
+def return_page(request: Request, image_id: str) -> HTMLResponse:
+    filename = cache.get_filename_and_generate_copy_if_missing(image_id)
+    
+    current_height = 512    
+    metadata = cache.get_metadata(image_id)
+    current_width, current_height = ImageUtils.calculate_scaled_size(original_width=metadata.original_width, original_height=metadata.original_height, height=current_height)
+    resolution_data = TemplateResolutionMetadata(original_width=metadata.original_width, original_height=metadata.original_height, current_width=current_width, current_height=current_height)
+    
+    return templates.TemplateResponse(
+        request=request,
+        name="image.html",
+        context={"site_title": site_title, "image_id": image_id, "image_filename": filename, "height": current_height, "version": version, "resolution_data": resolution_data},
+    )
 
 
 @app.get("/favicon.ico", response_class=FaviconResponse)
@@ -55,23 +71,13 @@ async def page_redirect_rand_image(request: Request, redirect: bool = False):
 
     if redirect:
         return RedirectResponse(image_id)
-
-    filename = cache.get_filename_and_generate_copy_if_missing(image_id)
-    return templates.TemplateResponse(
-        request=request,
-        name="image.html",
-        context={"site_title": site_title, "image_id": image_id, "image_filename": filename, "height": 512, "version": version},
-    )
+    
+    return return_page(request, image_id)
 
 
 @app.get("/{image_id}", response_class=HTMLResponse)
-async def page_get_image(request: Request, image_id: str):
-    filename = cache.get_filename_and_generate_copy_if_missing(image_id)
-    return templates.TemplateResponse(
-        request=request,
-        name="image.html",
-        context={"site_title": site_title, "image_id": image_id, "image_filename": filename, "height": 512, "version": version},
-    )
+async def page_get_image(request: Request, image_id: str):    
+    return return_page(request, image_id)
 
 
 @app.get("/api/img/{image_id}")

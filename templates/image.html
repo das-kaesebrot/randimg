@@ -19,14 +19,14 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
                         <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
                         <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
-                    </svg> Current resolution
+                    </svg> Current ({{ resolution_data.current_width }}x{{ resolution_data.current_height }})
                 </a>
                 <a role="button" class="btn btn-outline-primary" 
                    href="{{ url_for('api_get_image', image_id=image_id).include_query_params(download=True) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
                         <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
                         <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
-                    </svg> Original
+                    </svg> Original ({{ resolution_data.original_width }}x{{ resolution_data.original_height }})
                 </a>
                 <a role="button" class="btn btn-secondary"
                     href="{{ url_for('page_get_image', image_id=image_id) }}">
@@ -85,8 +85,8 @@
             .catch(err => console.error("Error loading image:", err));
     </script>
 
-    <footer class="py-3 my-4">
-        <p class="text-center text-body-secondary">Powered by <a href="https://github.com/das-kaesebrot/randimg" class="text-body-secondary">randimg</a> v{{ version }}</p>
+    <footer class="py-3 my-4 text-center text-body-secondary fw-light">
+        <p>Powered by <a href="https://github.com/das-kaesebrot/randimg" class="text-reset">randimg</a> version <code>{{ version }}</code></p>
     </footer>
 </body>
 </html>

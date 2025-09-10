@@ -32,6 +32,12 @@ class ImageMetadata:
             format=image.format,
         )
 
+@dataclass
+class TemplateResolutionMetadata:
+    original_width: int
+    original_height: int
+    current_width: int
+    current_height: int
 
 class FaviconResponse(Response):
     media_type = "image/svg+xml"
