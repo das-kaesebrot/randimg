@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Union
 from fastapi.responses import Response
 import io
 from PIL import Image
@@ -31,7 +32,21 @@ class CachedImage:
         self.data.save(fp=buf, format=self.data.format)
         buf.seek(0)
         return buf
+
+
+@dataclass
+class ImageMetadata:
+    original_width: int
+    original_height: int
+    media_type: str
+    format: str
     
+    def get_filename(self, id: str, scaled_width: Union[int, None], scaled_height: Union[int, None]) -> str:
+        width = self.original_width if not scaled_width else scaled_width
+        height = self.original_height if not scaled_height else scaled_height
+        
+        return ImageUtils.get_filename(id=id, width=width, height=height, format=format)
 
 class FaviconResponse(Response):
     media_type = "image/svg+xml"
+    
