@@ -56,7 +56,15 @@ class ImageUtils:
         buf.seek(0)
         new_image = Image.open(buf)
         return new_image
-
+    
+    @staticmethod
+    def get_filename_with_image_data(*, id: str, data: Image.Image):
+        return ImageUtils.get_filename(id=id, width=data.width, height=data.height, format=data.format)
+    
+    @staticmethod
+    def get_filename(*, id: str, width: int, height: int, format: str):
+        return f"{id}_{width}x{height}.{format.lower()}"
+    
     @staticmethod
     def get_id(*, data: Image.Image) -> str:
         pixel_bytes = data.tobytes()

@@ -28,7 +28,7 @@ def return_and_resize_image(image_id: str, image: CachedImage, width: Union[int,
     
     content_disposition = "inline"
     if download:
-        content_disposition = f'attachment; filename="{get_filename(image_id, img_data)}"'
+        content_disposition = f'attachment; filename="{ImageUtils.get_filename_with_image_data(image_id, img_data)}"'
     
     return StreamingResponse(buf, media_type=image.media_type, headers={'Content-Disposition': content_disposition, 'X-Image-Id': f'{image_id}', "Cache-Control": "max-age=2592000, public, no-transform"})
 
@@ -47,7 +47,7 @@ async def page_redirect_rand_image(request: Request):
 @app.get("/{image_id}", response_class=HTMLResponse)
 async def page_get_image(request: Request, image_id: str):
     image = cache.get(image_id)
-    filename = get_filename(image_id=image_id, image_data=image.data)
+    filename = ImageUtils.get_filename_with_image_data(image_id=image_id, image_data=image.data)
     return templates.TemplateResponse(request=request, name="image.html", context={"image_id": image_id, "image_filename": filename, "height": 512})
 
 @app.get("/api/img/{image_id}")
