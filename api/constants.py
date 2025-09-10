@@ -1,5 +1,5 @@
 class Constants:
-    ALLOWED_DIMENSIONS = [2048, 1042, 512, 256, 128, 64, 32, 16]
+    ALLOWED_DIMENSIONS = [2048, 1024, 512, 256, 128, 64, 32, 16]
     DEFAULT_FORMAT = "png"
     
     @staticmethod
