@@ -89,3 +89,6 @@ class Cache:
 
     def get_metadata(self, id: str) -> Union[ImageMetadata, None]:
         return self._metadata_dict.get(id)
+    
+    def id_exists(self, id: str) -> bool:
+        return id in self._metadata_dict.keys()
