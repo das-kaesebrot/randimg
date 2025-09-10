@@ -23,6 +23,7 @@ COPY --from=build requirements.txt .
 RUN python3 -m pip install -r requirements.txt
 
 COPY --chown=1101:1101 api api
+COPY --chown=1101:1101 resources resources
 COPY --chown=1101:1101 static static
 COPY --chown=1101:1101 templates templates
 COPY --chown=1101:1101 main.py main.py
