@@ -6,6 +6,20 @@
     <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
     <link rel="shortcut icon" href="{{ url_for('get_favicon') }}">
     <title>{% block title %}{% endblock %}</title>
+
+    <meta name="description" content="{% block description %}{% endblock%}">
+
+    <meta property="og:url" content="{% block opengraph_url %}{{ request.url }}{% endblock %}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{% block opengraph_title %}{% endblock %}">
+    <meta property="og:description" content="{{ self.description() }}">
+    <meta property="og:image" content="{% block opengraph_image_url %}{% endblock %}">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ self.opengraph_url() }}">
+    <meta name="twitter:title" content="{{ self.opengraph_title() }}">
+    <meta name="twitter:description" content="{{ self.description() }}">
+    <meta name="twitter:image" content="{{ self.opengraph_image_url() }}">
     {% endblock %}
 </head>
 <body>

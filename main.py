@@ -17,12 +17,16 @@ source_image_dir = os.getenv(f"{ENV_PREFIX}_IMAGE_DIR", "assets/images")
 cache_dir = os.getenv(f"{ENV_PREFIX}_CACHE_DIR", "cache")
 site_title = os.getenv(f"{ENV_PREFIX}_SITE_TITLE", "Random image")
 site_emoji = os.getenv(f"{ENV_PREFIX}_SITE_EMOJI", "🦈")
+default_card_image_id = os.getenv(f"{ENV_PREFIX}_DEFAULT_CARD_IMAGE")
 
 app = FastAPI(title=site_title)
 app.mount("/static", StaticFiles(directory="resources/static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 cache = Cache(image_dir=source_image_dir, cache_dir=cache_dir)
+
+if not default_card_image_id:
+    default_card_image_id = cache.get_first_id()
 
 
 def get_file_response(*, image_id: str, width: Union[int, None] = None, height: Union[int, None] = None, download: bool = False, set_cache_header: bool = True) -> FileResponse:
@@ -60,7 +64,7 @@ def get_file_response(*, image_id: str, width: Union[int, None] = None, height: 
         headers=headers,
     )
     
-def get_image_page_response(request: Request, image_id: str) -> HTMLResponse:
+def get_image_page_response(request: Request, image_id: str, is_direct_request: bool = False) -> HTMLResponse:
     current_width = Constants.get_default_width()
     metadata = cache.get_metadata(image_id)
     current_width, current_height = ImageUtils.calculate_scaled_size(original_width=metadata.original_width, original_height=metadata.original_height, width=current_width)
@@ -82,7 +86,7 @@ def get_image_page_response(request: Request, image_id: str) -> HTMLResponse:
     return templates.TemplateResponse(
         request=request,
         name="image.html",
-        context={"site_emoji": site_emoji, "site_title": site_title, "image_id": image_id, "image_filename": filename, "version": version, "resolution_data": resolution_data},
+        context={"site_emoji": site_emoji, "site_title": site_title, "image_id": image_id, "image_filename": filename, "version": version, "resolution_data": resolution_data, "is_direct_request": is_direct_request, "default_card_image_id": default_card_image_id},
     )
 
 
@@ -107,7 +111,7 @@ async def page_redirect_rand_image(request: Request, redirect: bool = False):
 
 @app.get("/{image_id}", response_class=HTMLResponse)
 async def page_get_image(request: Request, image_id: str):    
-    return get_image_page_response(request, image_id)
+    return get_image_page_response(request, image_id, is_direct_request=True)
 
 
 @app.get("/api/img/{image_id}")
