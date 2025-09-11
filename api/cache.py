@@ -25,6 +25,7 @@ class Cache:
     _logger: logging.Logger
     
     _inotify_thread: Thread
+    _original_filenames_to_ids: Dict[str, str] = {}
     _mutex_lock: Lock = Lock()
 
     def __init__(self, *, image_dir: str, cache_dir: str, enable_inotify: bool = True):
@@ -35,6 +36,7 @@ class Cache:
         self._logger.info(f"Created cache instance with image directory='{image_dir}' and cache directory='{cache_dir}'")
         self._cache_dir = cache_dir
         self._image_dir = image_dir
+        
         self._generate_cache()
         
         if enable_inotify: self._dispatch_inotify_thread()
@@ -43,7 +45,7 @@ class Cache:
         start = perf_counter()
         image_dir = self._image_dir
         
-        images: list[Image.Image] = []
+        filename_to_image: dict[str, Image.Image] = {}
 
         for filename in os.listdir(image_dir):
             if (
@@ -54,24 +56,23 @@ class Cache:
                 try:
                     img = Image.open(os.path.join(image_dir, filename))
                     img.load()
-                    images.append(img)
+                    filename_to_image[filename] = img
                 except OSError as e:
                     self._logger.exception(f"Failed loading file '{os.path.join(image_dir, filename)}'")
                     continue
 
-        metadata_dict = {}
-
-        for image in images:
+        for filename, image in filename_to_image.items():
             try:
                 id, metadata = ImageUtils.convert_to_unified_format_and_write_to_filesystem(
                     output_path=self._cache_dir, image=image
                 )
-                metadata_dict[id] = metadata
+                self._ids_to_metadata[id] = metadata
+                self._original_filenames_to_ids[filename] = id
+                image.close()
             except OSError:
                 self._logger.exception(f"Failed writing converted file '{'no filename' if not image.filename else image.filename}'")
                 continue
 
-        self._ids_to_metadata = metadata_dict    
         end = perf_counter()
         self._logger.info(f"Generated {len(self._ids_to_metadata.keys())} cached images in {timedelta(seconds=end-start)}")
     
