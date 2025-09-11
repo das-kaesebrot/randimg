@@ -14,6 +14,7 @@ from time import perf_counter
 
 class Cache:
     _metadata_dict: Dict[str, ImageMetadata] = {}
+    _image_dir: str
     _cache_dir: str
     _logger: logging.Logger
 
@@ -24,10 +25,12 @@ class Cache:
         self._logger = logging.getLogger(__name__)
         self._logger.info(f"Created cache instance with image directory='{image_dir}' and cache directory='{cache_dir}'")
         self._cache_dir = cache_dir
-        self._generate_cache(image_dir)
-
-    def _generate_cache(self, image_dir: str) -> Dict[str, ImageMetadata]:
+        self._image_dir = image_dir
+        self._generate_cache()
+        
+    def _generate_cache(self) -> Dict[str, ImageMetadata]:
         start = perf_counter()
+        image_dir = self._image_dir
         
         images: list[Image.Image] = []
 
