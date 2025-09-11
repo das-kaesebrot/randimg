@@ -22,7 +22,12 @@ site_emoji = os.getenv(f"{ENV_PREFIX}_SITE_EMOJI", "🦈")
 default_card_image_id = os.getenv(f"{ENV_PREFIX}_DEFAULT_CARD_IMAGE")
 loglevel = os.getenv(f"UVICORN_LOG_LEVEL", logging.INFO)
 
-LoggingUtils.setup_logging_with_default_formatter(loglevel=loglevel, force_override_existing_loggers=False)
+LoggingUtils.setup_logging_with_default_formatter(loglevel=loglevel)
+
+for name in logging.root.manager.loggerDict.keys():
+    logging.getLogger(name).handlers = []
+    logging.getLogger(name).propagate = True
+
 
 app = FastAPI(title=site_title)
 app.mount("/static", StaticFiles(directory="resources/static"), name="static")
