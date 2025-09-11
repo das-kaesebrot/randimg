@@ -20,7 +20,11 @@ RUN chown -R 1101:1101 ${APP_ROOT}
 WORKDIR ${APP_ROOT}
 
 COPY --from=build requirements.txt .
-RUN python3 -m pip install -r requirements.txt
+RUN apk update && \
+    apk add git && \
+    python3 -m pip install -r requirements.txt && \
+    apk del git && \
+    apk cache clean
 
 COPY --chown=1101:1101 api api
 COPY --chown=1101:1101 resources resources

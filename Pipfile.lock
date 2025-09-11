@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f62d5c99132eddb374a612f16102f9ba914b0cf39770161db6901db2a76b99d7"
+            "sha256": "652d697f07193b7b2dc39e3fe703deb0a55b1f84363e2cc93c76ffaf427e25db"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -183,6 +183,10 @@
             "index": "pypi",
             "markers": "python_version >= '3.7'",
             "version": "==3.1.6"
+        },
+        "kaesebrot-commons": {
+            "git": "https://github.com/das-kaesebrot/python-commons.git",
+            "ref": "6a90a92f12f6e81a256b5e48570104abc1935414"
         },
         "markdown-it-py": {
             "hashes": [
