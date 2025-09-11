@@ -78,6 +78,9 @@ def get_file_response(*, image_id: str, width: Union[int, None] = None, height: 
     )
     
 def get_image_page_response(request: Request, image_id: str, is_direct_request: bool = False) -> HTMLResponse:
+    if not cache.id_exists(image_id):
+        raise HTTPException(status_code=404, detail=f"Image with id='{image_id}' could not be found!")
+    
     current_width = Constants.get_default_width()
     metadata = cache.get_metadata(image_id)
     current_width, current_height = ImageUtils.calculate_scaled_size(original_width=metadata.original_width, original_height=metadata.original_height, width=current_width)
