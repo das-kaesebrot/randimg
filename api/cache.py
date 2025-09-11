@@ -1,6 +1,9 @@
 import logging
 import os
 import random
+from threading import Thread
+import inotify.adapters
+import inotify.constants
 from PIL import Image
 from typing import Dict, Union
 from .classes import ImageMetadata
@@ -17,8 +20,10 @@ class Cache:
     _image_dir: str
     _cache_dir: str
     _logger: logging.Logger
+    
+    _inotify_thread: Thread
 
-    def __init__(self, *, image_dir: str, cache_dir: str):
+    def __init__(self, *, image_dir: str, cache_dir: str, enable_inotify: bool = True):
         image_dir = os.path.abspath(image_dir)
         cache_dir = os.path.abspath(cache_dir)
         
@@ -28,6 +33,8 @@ class Cache:
         self._image_dir = image_dir
         self._generate_cache()
         
+        if enable_inotify: self._dispatch_inotify_thread()
+
     def _generate_cache(self) -> Dict[str, ImageMetadata]:
         start = perf_counter()
         image_dir = self._image_dir
@@ -63,7 +70,25 @@ class Cache:
         self._metadata_dict = metadata_dict    
         end = perf_counter()
         self._logger.info(f"Generated {len(self._metadata_dict.keys())} cached images in {timedelta(seconds=end-start)}")
+    
+    def _dispatch_inotify_thread(self):
+        self._logger.info("Starting inotify thread")
         
+        self._inotify_thread = Thread(target=self._watch_fs_events)
+        self._inotify_thread.start()
+    
+    def _watch_fs_events(self):
+        try:            
+            i = inotify.adapters.Inotify()
+
+            i.add_watch(self._image_dir, mask=inotify.constants.IN_DELETE | inotify.constants.IN_CLOSE_WRITE)
+
+            for event in i.event_gen(yield_nones=False):
+                (_, type_names, path, filename) = event
+                self._logger.debug(event)
+                
+        except KeyboardInterrupt or InterruptedError as e:
+            self._logger.info(f"{type(e).__name__} received. Stopping thread.")
 
     def get_filename_and_generate_copy_if_missing(
         self, id: str, width: Union[int, None] = None, height: Union[int, None] = None, crop: bool = False
