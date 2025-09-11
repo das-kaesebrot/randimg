@@ -62,7 +62,7 @@
             });
         });
 
-        const imageUrl = "{{ url_for('api_get_image', image_id=image_id).include_query_params(height=height) }}";
+        const imageUrl = "{{ url_for('api_get_image', image_id=image_id).include_query_params(width=resolution_data.current_width) }}";
 
         fetch(imageUrl)
             .then(res => res.blob())
