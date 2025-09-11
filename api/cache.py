@@ -77,7 +77,7 @@ class Cache:
         self._logger.info(f"Generated {len(self._ids_to_metadata.keys())} cached images in {timedelta(seconds=end-start)}")
     
     def _dispatch_inotify_thread(self):
-        self._logger.info("Starting inotify thread")
+        self._logger.info("Dispatching inotify thread")
         
         self._inotify_thread = Thread(target=self._watch_fs_events)
         self._inotify_thread.start()
@@ -88,6 +88,7 @@ class Cache:
             i = inotify.adapters.Inotify()
 
             i.add_watch(self._image_dir, mask=inotify.constants.IN_DELETE | inotify.constants.IN_CLOSE_WRITE)
+            logger.info(f"Added watch for folder '{self._image_dir}'")
 
             for event in i.event_gen(yield_nones=False):
                 (event_obj, _, _, filename) = event
