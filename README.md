@@ -19,4 +19,5 @@ Environment variables take precedence over the config file.
 | `RANDIMG_IMAGE_DIR` | Where to load the images to display from. Supperted file types: `jpg` and `png` | `assets/images` | No |
 | `RANDIMG_CACHE_DIR` | Where to save the cached images (converted/resized) | `cache` | No |
 | `RANDIMG_SITE_TITLE` | The site title to use | `Random image` | No |
+| `RANDIMG_SITE_EMOJI` | The site emoji (used for the favicon and title) | `🦈` | No |
 | `FORWARDED_ALLOW_IPS` | Reverse proxies to trust | `127.0.0.1` | No |

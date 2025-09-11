@@ -16,6 +16,7 @@ version = os.getenv("APP_VERSION", "local-dev")
 source_image_dir = os.getenv(f"{ENV_PREFIX}_IMAGE_DIR", "assets/images")
 cache_dir = os.getenv(f"{ENV_PREFIX}_CACHE_DIR", "cache")
 site_title = os.getenv(f"{ENV_PREFIX}_SITE_TITLE", "Random image")
+site_emoji = os.getenv(f"{ENV_PREFIX}_SITE_EMOJI", "🦈")
 
 app = FastAPI(title=site_title)
 app.mount("/static", StaticFiles(directory="resources/static"), name="static")
@@ -81,7 +82,7 @@ def get_image_page_response(request: Request, image_id: str) -> HTMLResponse:
     return templates.TemplateResponse(
         request=request,
         name="image.html",
-        context={"site_title": site_title, "image_id": image_id, "image_filename": filename, "version": version, "resolution_data": resolution_data},
+        context={"site_emoji": site_emoji, "site_title": site_title, "image_id": image_id, "image_filename": filename, "version": version, "resolution_data": resolution_data},
     )
 
 
@@ -89,7 +90,7 @@ def get_image_page_response(request: Request, image_id: str) -> HTMLResponse:
 async def get_favicon():
     return (
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
-        + '<text y=".9em" font-size="90">🦈</text>'
+        + f'<text y=".9em" font-size="90">{site_emoji}</text>'
         + "</svg>"
     )
 
