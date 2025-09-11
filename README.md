@@ -16,7 +16,7 @@ Environment variables take precedence over the config file.
 ### Environment variables
 | Variable name | Description | Default value | Required? |
 | - | - | - | - |
-| `RANDIMG_IMAGE_DIR` | Where to load the images to display from. Supperted file types: `jpg` and `png` | `assets/images` | No |
+| `RANDIMG_IMAGE_DIR` | Where to load the images to display from. Supperted file types: `jpg` and `png` | `assets/images` (in Docker: `/var/assets`) | No |
 | `RANDIMG_CACHE_DIR` | Where to save the cached images (converted/resized) | `cache` | No |
 | `RANDIMG_SITE_TITLE` | The site title to use | `Random image` | No |
 | `RANDIMG_SITE_EMOJI` | The site emoji (used for the favicon and title) | `🦈` | No |
