@@ -1,11 +1,14 @@
 import logging
 import os
 import random
-from threading import Thread
+from threading import Thread, Lock
 import inotify.adapters
 import inotify.constants
 from PIL import Image
 from typing import Dict, Union
+
+from .decorators import wait_lock
+from .threading_utils import ThreadingUtils
 from .classes import ImageMetadata
 from .filename_utils import FilenameUtils
 from .image_utils import ImageUtils
@@ -22,6 +25,7 @@ class Cache:
     _logger: logging.Logger
     
     _inotify_thread: Thread
+    _mutex_lock: Lock = Lock()
 
     def __init__(self, *, image_dir: str, cache_dir: str, enable_inotify: bool = True):
         image_dir = os.path.abspath(image_dir)
@@ -93,7 +97,9 @@ class Cache:
     def get_filename_and_generate_copy_if_missing(
         self, id: str, width: Union[int, None] = None, height: Union[int, None] = None, crop: bool = False
     ) -> str:
+        ThreadingUtils.wait_and_acquire_lock(self._mutex_lock)
         metadata = self._ids_to_metadata.get(id)
+        self._mutex_lock.release()
 
         width, height = Utils.clamp(width, 0, metadata.original_width), Utils.clamp(
             height, 0, metadata.original_height
@@ -134,18 +140,23 @@ class Cache:
             )
 
         return filename
-
+    
+    @wait_lock(_mutex_lock)
     def get_random_id(self) -> str:
         return random.choice(list(self._ids_to_metadata.keys()))
 
+    @wait_lock(_mutex_lock)
     def get_random(self) -> tuple[str, ImageMetadata]:
         return random.choice(list(self._ids_to_metadata.values()))
 
+    @wait_lock(_mutex_lock)
     def get_metadata(self, id: str) -> Union[ImageMetadata, None]:
         return self._ids_to_metadata.get(id)
     
+    @wait_lock(_mutex_lock)
     def id_exists(self, id: str) -> bool:
         return id in self._ids_to_metadata.keys()
     
+    @wait_lock(_mutex_lock)
     def get_first_id(self) -> dict[str, ImageMetadata]:
         return sorted(self._ids_to_metadata.keys())[0]
