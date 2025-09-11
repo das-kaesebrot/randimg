@@ -5,7 +5,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from kaesebrot_commons.logging_utils import LoggingUtils
+from kaesebrot_commons.logging.utils import LoggingUtils
 
 from api.cache import Cache
 from api.classes import FaviconResponse, ResolutionVariant, TemplateResolutionMetadata
