@@ -6,13 +6,16 @@
     {{ super() }}
 {% endblock %}
 
-{% block description -%}
-A random image{%- if is_direct_request %} with ID {{ image_id }}{%- endif -%}
-{% endblock  %}
-
 {%- block opengraph_title -%}
+{%- if is_direct_request -%}
+{{ image_id }}
+{% else %}
+A random image
+{%- endif -%}
+{%- endblock -%}
+
+{%- block opengraph_site_name -%}
 {{ site_emoji }} {{ site_title }}
-{%- if is_direct_request %} | {{ image_id }}{%- endif -%}
 {%- endblock -%}
 
 {% block opengraph_image_url %}
