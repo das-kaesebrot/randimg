@@ -1,13 +1,12 @@
-<html lang="en" data-bs-theme="dark">
-<head>
-    <title>{{ site_title }} | {{ image_id }}</title>
-    <script src="{{ url_for('static', path='/bootstrap/1756173047/bootstrap.bundle.min.js') }}"></script>
-    <link rel="stylesheet" href="{{ url_for('static', path='/bootstrap/1756173047/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
-    <link rel="shortcut icon" href="{{ url_for('get_favicon') }}">
-</head>
-<body>
-    <div class="container-fluid text-center">
+{% extends "base.html" %}
+
+{% block title %}{{ site_title }} | {{ image_id }}{% endblock %}
+
+{% block head %}
+    {{ super() }}
+{% endblock %}
+
+{% block content %}
         <h1 class="pt-3 mt-4">{{ site_emoji }} {{ site_title }}</h1>
         <div class="row align-items-center">
             <div class="mt-2">
@@ -54,41 +53,35 @@
                 <code>Image ID: {{ image_id }}</code>
             </div>
         </div>
-    </div>
 
-    <script>
-        window.addEventListener("load", (event) => {
-            document.getElementById('clipboard-link').addEventListener("click", async (e) => {
-                try {
-                    await navigator.clipboard.writeText('{{ url_for('page_get_image', image_id=image_id) }}');
-                    e.srcElement.classList.remove("btn-secondary");
-                    e.srcElement.classList.add("btn-success");
-                    await new Promise(r => setTimeout(r, 1000));
-                    e.srcElement.classList.remove("btn-success");
-                    e.srcElement.classList.add("btn-secondary");
-                } catch (err) {
-                    console.error('Failed to copy: ', err);
-                }
+        <script>
+            window.addEventListener("load", (event) => {
+                document.getElementById('clipboard-link').addEventListener("click", async (e) => {
+                    try {
+                        await navigator.clipboard.writeText('{{ url_for('page_get_image', image_id=image_id) }}');
+                        e.srcElement.classList.remove("btn-secondary");
+                        e.srcElement.classList.add("btn-success");
+                        await new Promise(r => setTimeout(r, 1000));
+                        e.srcElement.classList.remove("btn-success");
+                        e.srcElement.classList.add("btn-secondary");
+                    } catch (err) {
+                        console.error('Failed to copy: ', err);
+                    }
+                });
             });
-        });
 
-        const imageUrl = "{{ url_for('api_get_image', image_id=image_id).include_query_params(width=resolution_data.current_width) }}";
+            const imageUrl = "{{ url_for('api_get_image', image_id=image_id).include_query_params(width=resolution_data.current_width) }}";
 
-        fetch(imageUrl)
-            .then(res => res.blob())
-            .then(blob => {
-                const blobUrl = URL.createObjectURL(blob);
+            fetch(imageUrl)
+                .then(res => res.blob())
+                .then(blob => {
+                    const blobUrl = URL.createObjectURL(blob);
 
-                document.getElementById("image").src = blobUrl;
+                    document.getElementById("image").src = blobUrl;
 
-                const downloadLink = document.getElementById("download");
-                downloadLink.href = blobUrl;
-            })
-            .catch(err => console.error("Error loading image:", err));
-    </script>
-
-    <footer class="pt-2 mt-2 text-center text-body-secondary fw-light">
-        <p>Powered by <a href="https://github.com/das-kaesebrot/randimg" class="text-reset">randimg</a> version <code>{{ version }}</code></p>
-    </footer>
-</body>
-</html>
+                    const downloadLink = document.getElementById("download");
+                    downloadLink.href = blobUrl;
+                })
+                .catch(err => console.error("Error loading image:", err));
+        </script>
+{% endblock %}
