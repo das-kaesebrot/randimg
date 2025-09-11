@@ -59,6 +59,7 @@ jobs:
             ${{ steps.meta.outputs.tags }}
             ${{ vars.DOCKERHUB_IMAGENAME }}:latest
             ${{ vars.DOCKERHUB_IMAGENAME }}:${{ github.sha }}
+            ${{ vars.DOCKERHUB_IMAGENAME }}:${{ env.COMMIT_SHORT_SHA }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             APP_VERSION=${{ env.COMMIT_SHORT_SHA }}
