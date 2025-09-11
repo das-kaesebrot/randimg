@@ -52,31 +52,17 @@ class ImageUtils:
     ) -> tuple[int, int]:
         if not width and not height:
             return original_width, original_height  # nothing to do
+        
+        # doing my own math, none of this convoluted pillow stuff
+        aspect_ratio = original_width / original_height
+        
+        if not width:
+            width = int(height * aspect_ratio)
+            
+        if not height:
+            height = int(width / aspect_ratio)
 
-        if not width and height:
-            width = height
-        elif width and not height:
-            height = width
-
-        # copied from PIL codebase
-        def preserve_aspect_ratio() -> tuple[int, int] | None:
-            def round_aspect(number: float, key: Callable[[int], float]) -> int:
-                return max(min(math.floor(number), math.ceil(number), key=key), 1)
-
-            x, y = width, height
-
-            aspect = original_width / original_height
-            if x / y >= aspect:
-                x = round_aspect(y * aspect, key=lambda n: abs(aspect - n / y))
-            else:
-                y = round_aspect(
-                    x / aspect, key=lambda n: 0 if n == 0 else abs(aspect - x / n)
-                )
-            return x, y
-
-        preserved_size = preserve_aspect_ratio()
-
-        return preserved_size
+        return width, height
 
     @staticmethod
     def convert_to_unified_format_in_buffer(image: Image.Image) -> Image.Image:
