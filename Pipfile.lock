@@ -186,7 +186,7 @@
         },
         "kaesebrot-commons": {
             "git": "https://github.com/das-kaesebrot/python-commons.git",
-            "ref": "6a90a92f12f6e81a256b5e48570104abc1935414"
+            "ref": "3813744fa3763fb2e901f40bd2d4155ca82b855f"
         },
         "markdown-it-py": {
             "hashes": [
