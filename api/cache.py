@@ -83,17 +83,51 @@ class Cache:
         self._inotify_thread.start()
     
     def _watch_fs_events(self):
+        logger = logging.getLogger(f"{__name__}.inotify-thread")
         try:            
             i = inotify.adapters.Inotify()
 
             i.add_watch(self._image_dir, mask=inotify.constants.IN_DELETE | inotify.constants.IN_CLOSE_WRITE)
 
             for event in i.event_gen(yield_nones=False):
-                (_, type_names, path, filename) = event
-                self._logger.debug(event)
-                
+                (event_obj, _, _, filename) = event
+                logger.debug(event)                
+                mask = event_obj.mask
+                                
+                if (mask & inotify.constants.IN_CLOSE_WRITE) == inotify.constants.IN_CLOSE_WRITE:
+                    logger.info(f"Detected new file '{filename}', adjusting cache")
+                    image: Image.Image = None
+                    try:
+                        image = Image.open(os.path.join(self._image_dir, filename))
+                    except OSError as e:
+                        logger.exception("Exception while opening file")
+                        continue
+                    
+                    ThreadingUtils.wait_and_acquire_lock(self._mutex_lock)
+                    try:
+                        id, metadata = ImageUtils.convert_to_unified_format_and_write_to_filesystem(
+                            output_path=self._cache_dir, image=image
+                        )
+                        self._ids_to_metadata[id] = metadata
+                        self._original_filenames_to_ids[filename] = id
+                    except OSError as e:
+                        logger.exception("Exception while converting file")
+                        continue
+                    finally:
+                        self._mutex_lock.release()
+                        if image: image.close()
+
+                elif (mask & inotify.constants.IN_DELETE) == inotify.constants.IN_DELETE:
+                    logger.info(f"Detected deleted file '{filename}', adjusting cache")
+                    ThreadingUtils.wait_and_acquire_lock(self._mutex_lock)
+                    id = self._original_filenames_to_ids.get(filename)
+                    if id:
+                        del self._original_filenames_to_ids[filename]
+                        del self._ids_to_metadata[id]
+                    self._mutex_lock.release()
+                    
         except KeyboardInterrupt or InterruptedError as e:
-            self._logger.info(f"{type(e).__name__} received. Stopping thread.")
+            logger.info(f"{type(e).__name__} received. Stopping thread.")
 
     def get_filename_and_generate_copy_if_missing(
         self, id: str, width: Union[int, None] = None, height: Union[int, None] = None, crop: bool = False
