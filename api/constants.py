@@ -10,3 +10,7 @@ class Constants:
     def get_max_width():
         return Constants.ALLOWED_DIMENSIONS[0]
     
+    @staticmethod
+    def get_small_thumbnail_width():
+        return Constants.ALLOWED_DIMENSIONS[3]
+    

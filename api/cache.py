@@ -63,19 +63,21 @@ class Cache:
         
 
     def get_filename_and_generate_copy_if_missing(
-        self, id: str, width: Union[int, None] = None, height: Union[int, None] = None
+        self, id: str, width: Union[int, None] = None, height: Union[int, None] = None, crop: bool = False
     ) -> str:
         metadata = self._metadata_dict.get(id)
 
         width, height = Utils.clamp(width, 0, metadata.original_width), Utils.clamp(
             height, 0, metadata.original_height
         )
-        width, height = ImageUtils.calculate_scaled_size(
-            metadata.original_width,
-            metadata.original_height,
-            width=width,
-            height=height,
-        )
+        
+        if not crop:
+            width, height = ImageUtils.calculate_scaled_size(
+                metadata.original_width,
+                metadata.original_height,
+                width=width,
+                height=height,
+            )
 
         filename = os.path.join(
             self._cache_dir,
@@ -100,6 +102,7 @@ class Cache:
                 output_path=self._cache_dir,
                 width=width,
                 height=height,
+                crop=crop,
             )
 
         return filename

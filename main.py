@@ -34,11 +34,14 @@ if not default_card_image_id:
     default_card_image_id = cache.get_first_id()
 
 
-def get_file_response(*, image_id: str, width: Union[int, None] = None, height: Union[int, None] = None, download: bool = False, set_cache_header: bool = True) -> FileResponse:
+def get_file_response(*, image_id: str, width: Union[int, None] = None, height: Union[int, None] = None, download: bool = False, set_cache_header: bool = True, is_thumbnail: bool = False) -> FileResponse:
     if not cache.id_exists(image_id):
         raise HTTPException(status_code=404, detail=f"File with id='{image_id}' could not be found!")
     
     metadata = cache.get_metadata(image_id)
+    
+    if is_thumbnail:
+        width, height = Constants.get_small_thumbnail_width(), Constants.get_small_thumbnail_width()
     
     if not height and width and width not in Constants.ALLOWED_DIMENSIONS:
         _, height = ImageUtils.calculate_scaled_size(original_width=metadata.original_width, original_height=metadata.original_height, width=width)
@@ -52,7 +55,7 @@ def get_file_response(*, image_id: str, width: Union[int, None] = None, height: 
             raise HTTPException(status_code=400, detail=f"Height is not of allowed value!")
     
     filename = cache.get_filename_and_generate_copy_if_missing(
-        image_id, width=width, height=height
+        image_id, width=width, height=height, crop=is_thumbnail
     )
         
     headers = {
@@ -125,11 +128,12 @@ async def api_get_image(
     width: Union[int, None] = None,
     height: Union[int, None] = None,
     download: bool = False,
+    thumb: bool = False,
 ):
     if image_id.endswith(f".{Constants.DEFAULT_FORMAT}"):
         image_id = image_id.rstrip(f".{Constants.DEFAULT_FORMAT}")
         
-    return get_file_response(image_id=image_id, width=width, height=height, download=download)
+    return get_file_response(image_id=image_id, width=width, height=height, download=download, is_thumbnail=thumb)
 
 
 @app.get("/api/img")

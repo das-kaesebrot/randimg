@@ -52,13 +52,13 @@ class ImageUtils:
     ) -> tuple[int, int]:
         if not width and not height:
             return original_width, original_height  # nothing to do
-        
+
         # doing my own math, none of this convoluted pillow stuff
         aspect_ratio = original_width / original_height
-        
+
         if not width:
             width = int(height * aspect_ratio)
-            
+
         if not height:
             height = int(width / aspect_ratio)
 
@@ -146,10 +146,11 @@ class ImageUtils:
         output_path: str,
         width: Union[int, None] = None,
         height: Union[int, None] = None,
+        crop: bool = False,
     ) -> str:
         source = Image.open(source_filename)
         return ImageUtils.write_scaled_copy_to_filesystem(
-            id=id, source=source, output_path=output_path, width=width, height=height
+            id=id, source=source, output_path=output_path, width=width, height=height, crop=crop
         )
 
     @staticmethod
@@ -160,8 +161,14 @@ class ImageUtils:
         output_path: str,
         width: Union[int, None] = None,
         height: Union[int, None] = None,
+        crop: bool = False,
     ) -> str:
-        image = ImageUtils.resize(source, width, height, copy=False)
+        image = source
+        if crop:
+            image = ImageUtils._crop_center(source, min(source.size), min(source.size))
+        
+        image = ImageUtils.resize(image, width, height, copy=False)
+        image.format = source.format
         filename = os.path.join(
             output_path, FilenameUtils.get_filename_with_image_data(id=id, data=image)
         )
@@ -174,3 +181,17 @@ class ImageUtils:
         hash_input = f"{data.width}_{data.height}".encode("utf-8") + pixel_bytes
         digest = hashlib.sha256(hash_input).digest()
         return base64.urlsafe_b64encode(digest).decode("ascii").rstrip("=")
+
+    @staticmethod
+    # https://note.nkmk.me/en/python-pillow-square-circle-thumbnail/
+    # Thanks!
+    def _crop_center(source: Image.Image, crop_width: int, crop_height: int):
+        img_width, img_height = source.size
+        return source.crop(
+            (
+                (img_width - crop_width) // 2,
+                (img_height - crop_height) // 2,
+                (img_width + crop_width) // 2,
+                (img_height + crop_height) // 2,
+            )
+        )
