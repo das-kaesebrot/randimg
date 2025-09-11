@@ -60,12 +60,11 @@ def get_file_response(*, image_id: str, width: Union[int, None] = None, height: 
     )
     
 def get_image_page_response(request: Request, image_id: str) -> HTMLResponse:
-    filename = cache.get_filename_and_generate_copy_if_missing(image_id)
-    filename = os.path.basename(filename)
-    
     current_width = Constants.get_default_width()
     metadata = cache.get_metadata(image_id)
     current_width, current_height = ImageUtils.calculate_scaled_size(original_width=metadata.original_width, original_height=metadata.original_height, width=current_width)
+    filename = cache.get_filename_and_generate_copy_if_missing(image_id, width=current_width, height=current_height)
+    filename = os.path.basename(filename)
     
     variants = []
     for width in sorted(Constants.ALLOWED_DIMENSIONS, reverse=True):
