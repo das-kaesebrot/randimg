@@ -128,6 +128,8 @@ class Cache:
                     
         except KeyboardInterrupt or InterruptedError as e:
             logger.info(f"{type(e).__name__} received. Stopping thread.")
+        finally:
+            if self._mutex_lock.locked(): self._mutex_lock.release()
 
     def get_filename_and_generate_copy_if_missing(
         self, id: str, width: Union[int, None] = None, height: Union[int, None] = None, crop: bool = False
