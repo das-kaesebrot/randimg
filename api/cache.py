@@ -1,8 +1,14 @@
 import logging
 import os
 import random
+from threading import Thread, Lock
+import inotify.adapters
+import inotify.constants
 from PIL import Image
 from typing import Dict, Union
+
+from .decorators import wait_lock
+from .threading_utils import ThreadingUtils
 from .classes import ImageMetadata
 from .filename_utils import FilenameUtils
 from .image_utils import ImageUtils
@@ -13,23 +19,33 @@ from time import perf_counter
 
 
 class Cache:
-    _metadata_dict: Dict[str, ImageMetadata] = {}
+    _ids_to_metadata: Dict[str, ImageMetadata] = {}
+    _image_dir: str
     _cache_dir: str
     _logger: logging.Logger
+    
+    _inotify_thread: Thread
+    _original_filenames_to_ids: Dict[str, str] = {}
+    _mutex_lock: Lock = Lock()
 
-    def __init__(self, *, image_dir: str, cache_dir: str):
+    def __init__(self, *, image_dir: str, cache_dir: str, enable_inotify: bool = True):
         image_dir = os.path.abspath(image_dir)
         cache_dir = os.path.abspath(cache_dir)
         
         self._logger = logging.getLogger(__name__)
         self._logger.info(f"Created cache instance with image directory='{image_dir}' and cache directory='{cache_dir}'")
         self._cache_dir = cache_dir
-        self._generate_cache(image_dir)
-
-    def _generate_cache(self, image_dir: str) -> Dict[str, ImageMetadata]:
-        start = perf_counter()
+        self._image_dir = image_dir
         
-        images: list[Image.Image] = []
+        self._generate_cache()
+        
+        if enable_inotify: self._dispatch_inotify_thread()
+
+    def _generate_cache(self) -> Dict[str, ImageMetadata]:
+        start = perf_counter()
+        image_dir = self._image_dir
+        
+        filename_to_image: dict[str, Image.Image] = {}
 
         for filename in os.listdir(image_dir):
             if (
@@ -40,32 +56,88 @@ class Cache:
                 try:
                     img = Image.open(os.path.join(image_dir, filename))
                     img.load()
-                    images.append(img)
+                    filename_to_image[filename] = img
                 except OSError as e:
                     self._logger.exception(f"Failed loading file '{os.path.join(image_dir, filename)}'")
                     continue
 
-        metadata_dict = {}
-
-        for image in images:
+        for filename, image in filename_to_image.items():
             try:
                 id, metadata = ImageUtils.convert_to_unified_format_and_write_to_filesystem(
                     output_path=self._cache_dir, image=image
                 )
-                metadata_dict[id] = metadata
+                self._ids_to_metadata[id] = metadata
+                self._original_filenames_to_ids[filename] = id
+                image.close()
             except OSError:
                 self._logger.exception(f"Failed writing converted file '{'no filename' if not image.filename else image.filename}'")
                 continue
 
-        self._metadata_dict = metadata_dict    
         end = perf_counter()
-        self._logger.info(f"Generated {len(self._metadata_dict.keys())} cached images in {timedelta(seconds=end-start)}")
+        self._logger.info(f"Generated {len(self._ids_to_metadata.keys())} cached images in {timedelta(seconds=end-start)}")
+    
+    def _dispatch_inotify_thread(self):
+        self._logger.info("Dispatching inotify thread")
         
+        self._inotify_thread = Thread(target=self._watch_fs_events)
+        self._inotify_thread.start()
+    
+    def _watch_fs_events(self):
+        logger = logging.getLogger(f"{__name__}.inotify-thread")
+        try:            
+            i = inotify.adapters.Inotify()
+
+            i.add_watch(self._image_dir, mask=inotify.constants.IN_DELETE | inotify.constants.IN_CLOSE_WRITE)
+            logger.info(f"Added watch for folder '{self._image_dir}'")
+
+            for event in i.event_gen(yield_nones=False):
+                (event_obj, _, _, filename) = event
+                logger.debug(event)                
+                mask = event_obj.mask
+                                
+                if (mask & inotify.constants.IN_CLOSE_WRITE) == inotify.constants.IN_CLOSE_WRITE:
+                    logger.info(f"Detected new file '{filename}', adjusting cache")
+                    image: Image.Image = None
+                    try:
+                        image = Image.open(os.path.join(self._image_dir, filename))
+                    except OSError as e:
+                        logger.exception("Exception while opening file")
+                        continue
+                    
+                    ThreadingUtils.wait_and_acquire_lock(self._mutex_lock)
+                    try:
+                        id, metadata = ImageUtils.convert_to_unified_format_and_write_to_filesystem(
+                            output_path=self._cache_dir, image=image
+                        )
+                        self._ids_to_metadata[id] = metadata
+                        self._original_filenames_to_ids[filename] = id
+                    except OSError as e:
+                        logger.exception("Exception while converting file")
+                        continue
+                    finally:
+                        self._mutex_lock.release()
+                        if image: image.close()
+
+                elif (mask & inotify.constants.IN_DELETE) == inotify.constants.IN_DELETE:
+                    logger.info(f"Detected deleted file '{filename}', adjusting cache")
+                    ThreadingUtils.wait_and_acquire_lock(self._mutex_lock)
+                    id = self._original_filenames_to_ids.get(filename)
+                    if id:
+                        del self._original_filenames_to_ids[filename]
+                        del self._ids_to_metadata[id]
+                    self._mutex_lock.release()
+                    
+        except KeyboardInterrupt or InterruptedError as e:
+            logger.info(f"{type(e).__name__} received. Stopping thread.")
+        finally:
+            if self._mutex_lock.locked(): self._mutex_lock.release()
 
     def get_filename_and_generate_copy_if_missing(
         self, id: str, width: Union[int, None] = None, height: Union[int, None] = None, crop: bool = False
     ) -> str:
-        metadata = self._metadata_dict.get(id)
+        ThreadingUtils.wait_and_acquire_lock(self._mutex_lock)
+        metadata = self._ids_to_metadata.get(id)
+        self._mutex_lock.release()
 
         width, height = Utils.clamp(width, 0, metadata.original_width), Utils.clamp(
             height, 0, metadata.original_height
@@ -106,18 +178,23 @@ class Cache:
             )
 
         return filename
-
+    
+    @wait_lock(_mutex_lock)
     def get_random_id(self) -> str:
-        return random.choice(list(self._metadata_dict.keys()))
+        return random.choice(list(self._ids_to_metadata.keys()))
 
+    @wait_lock(_mutex_lock)
     def get_random(self) -> tuple[str, ImageMetadata]:
-        return random.choice(list(self._metadata_dict.values()))
+        return random.choice(list(self._ids_to_metadata.values()))
 
+    @wait_lock(_mutex_lock)
     def get_metadata(self, id: str) -> Union[ImageMetadata, None]:
-        return self._metadata_dict.get(id)
+        return self._ids_to_metadata.get(id)
     
+    @wait_lock(_mutex_lock)
     def id_exists(self, id: str) -> bool:
-        return id in self._metadata_dict.keys()
+        return id in self._ids_to_metadata.keys()
     
+    @wait_lock(_mutex_lock)
     def get_first_id(self) -> dict[str, ImageMetadata]:
-        return sorted(self._metadata_dict.keys())[0]
+        return sorted(self._ids_to_metadata.keys())[0]
