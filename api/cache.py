@@ -16,7 +16,7 @@ from time import perf_counter
 
 
 class Cache:
-    _metadata_dict: Dict[str, ImageMetadata] = {}
+    _ids_to_metadata: Dict[str, ImageMetadata] = {}
     _image_dir: str
     _cache_dir: str
     _logger: logging.Logger
@@ -67,9 +67,9 @@ class Cache:
                 self._logger.exception(f"Failed writing converted file '{'no filename' if not image.filename else image.filename}'")
                 continue
 
-        self._metadata_dict = metadata_dict    
+        self._ids_to_metadata = metadata_dict    
         end = perf_counter()
-        self._logger.info(f"Generated {len(self._metadata_dict.keys())} cached images in {timedelta(seconds=end-start)}")
+        self._logger.info(f"Generated {len(self._ids_to_metadata.keys())} cached images in {timedelta(seconds=end-start)}")
     
     def _dispatch_inotify_thread(self):
         self._logger.info("Starting inotify thread")
@@ -93,7 +93,7 @@ class Cache:
     def get_filename_and_generate_copy_if_missing(
         self, id: str, width: Union[int, None] = None, height: Union[int, None] = None, crop: bool = False
     ) -> str:
-        metadata = self._metadata_dict.get(id)
+        metadata = self._ids_to_metadata.get(id)
 
         width, height = Utils.clamp(width, 0, metadata.original_width), Utils.clamp(
             height, 0, metadata.original_height
@@ -136,16 +136,16 @@ class Cache:
         return filename
 
     def get_random_id(self) -> str:
-        return random.choice(list(self._metadata_dict.keys()))
+        return random.choice(list(self._ids_to_metadata.keys()))
 
     def get_random(self) -> tuple[str, ImageMetadata]:
-        return random.choice(list(self._metadata_dict.values()))
+        return random.choice(list(self._ids_to_metadata.values()))
 
     def get_metadata(self, id: str) -> Union[ImageMetadata, None]:
-        return self._metadata_dict.get(id)
+        return self._ids_to_metadata.get(id)
     
     def id_exists(self, id: str) -> bool:
-        return id in self._metadata_dict.keys()
+        return id in self._ids_to_metadata.keys()
     
     def get_first_id(self) -> dict[str, ImageMetadata]:
-        return sorted(self._metadata_dict.keys())[0]
+        return sorted(self._ids_to_metadata.keys())[0]
