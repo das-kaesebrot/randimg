@@ -5,6 +5,19 @@ A web service that displays a random image, made primarily to show random pictur
 <p align="center" width="100%">
     <img width="65%" src="docs/screenshot.png" title="Screenshot of randimg instance running at https://kaesebrot.eu/blahaj"></img>
 </p>
+
+## Features
+- [x] on-the-fly cached image generation for different resolutions
+- [x] deterministic image IDs that are calculated from the pixel values, not the file bytes: an image will always receive the same ID
+- [x] privacy-focused: all EXIF tags are stripped from hosted images
+- [x] [Open Graph protocol](https://ogp.me/) integration for link previews
+- [x] [inotify](https://linux.die.net/man/7/inotify)-based watchfolder support: images are automatically added/removed when copied/deleted to/from the input folder
+- [ ] optimized slim page responses for crawlers (return just Open Graph tags and the html header)
+- [ ] gallery page
+- [ ] pageable image API
+- [ ] responsive page UI with focus on mobile usage
+- [ ] as few HTML/CSS/Javascript dependencies as possible
+
 ## Deployment
 The service is available as a container on Docker hub: https://hub.docker.com/r/daskaesebrot/randimg
 ```bash
