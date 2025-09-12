@@ -1,9 +1,10 @@
 # randimg
 
-A web service that displays a random image.
+A web service that displays a random image, made primarily to show random pictures of [Blåhaj](https://en.wikipedia.org/wiki/Bl%C3%A5haj) on my website [kaesebrot.eu/blahaj](https://kaesebrot.eu/blahaj) :)
 
-## Pulling the image
-Docker hub: https://hub.docker.com/r/daskaesebrot/randimg
+<p align="center" width="100%">
+    <img width="65%" src="docs/screenshot.png" title="Screenshot of randimg instance running at https://kaesebrot.eu/blahaj"></img>
+</p>
 ```bash
 docker pull daskaesebrot/randimg
 ```
