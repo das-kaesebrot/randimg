@@ -31,7 +31,7 @@ for name in logging.root.manager.loggerDict.keys():
 
 app = FastAPI(title=site_title)
 app.mount("/static", StaticFiles(directory="resources/static"), name="static")
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="resources/templates")
 
 cache = Cache(image_dir=source_image_dir, cache_dir=cache_dir)
 

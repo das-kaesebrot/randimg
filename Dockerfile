@@ -28,7 +28,6 @@ RUN apk update && \
 
 COPY --chown=1101:1101 api api
 COPY --chown=1101:1101 resources resources
-COPY --chown=1101:1101 templates templates
 COPY --chown=1101:1101 main.py main.py
 
 USER randimg
