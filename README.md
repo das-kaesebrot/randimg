@@ -10,9 +10,7 @@ docker pull daskaesebrot/randimg
 ```
 
 ## Configuration
-
-You may configure the bot via multiple sources.
-Environment variables take precedence over the config file.
+You may configure the web service via environment variables.
 
 ### Environment variables
 | Variable name | Description | Default value | Required? |
@@ -21,4 +19,6 @@ Environment variables take precedence over the config file.
 | `RANDIMG_CACHE_DIR` | Where to save the cached images (converted/resized) | `cache` | No |
 | `RANDIMG_SITE_TITLE` | The site title to use | `Random image` | No |
 | `RANDIMG_SITE_EMOJI` | The site emoji (used for the favicon and title) | `🦈` | No |
-| `FORWARDED_ALLOW_IPS` | Reverse proxies to trust | `127.0.0.1` | No |
+| `RANDIMG_DEFAULT_CARD_IMAGE` | The image ID to use as the [Open Graph](https://ogp.me/) thumbnail for the root view (`/`) | The (alphabetically) first ID | No |
+| `RANDIMG_LOG_LEVEL` | The log level (uses `UVICORN_LOG_LEVEL` as fallback if unset, then uses default value) | `INFO` | No |
+| `FORWARDED_ALLOW_IPS` | Reverse proxies to trust (see [Uvicorn docs](https://www.uvicorn.org/settings/)) | `127.0.0.1` | No |
