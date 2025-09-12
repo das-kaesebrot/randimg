@@ -37,3 +37,32 @@ You may configure the web service via environment variables.
 | `RANDIMG_DEFAULT_CARD_IMAGE` | The image ID to use as the [Open Graph](https://ogp.me/) thumbnail for the root view (`/`) | The (alphabetically) first ID | No |
 | `RANDIMG_LOG_LEVEL` | The log level (uses `UVICORN_LOG_LEVEL` as fallback if unset, then uses default value) | `INFO` | No |
 | `FORWARDED_ALLOW_IPS` | Reverse proxies to trust (see [Uvicorn docs](https://www.uvicorn.org/settings/)) | `127.0.0.1` | No |
+
+## Open Source License Attribution
+
+This application uses Open Source components. You can find the source code of their open source projects along with license information below. We acknowledge and are grateful to these developers for their contributions to open source.
+
+
+### [FastAPI](https://fastapi.tiangolo.com/)
+- Copyright (c) 2018 Sebastián Ramírez
+- [MIT license](https://github.com/fastapi/fastapi/blob/master/LICENSE)
+
+### [Pillow](https://github.com/python-pillow/Pillow)
+- Copyright (c) 2010 by Jeffrey A. Clark and contributors
+- [MIT-CMU license](https://github.com/python-pillow/Pillow/blob/main/LICENSE)
+
+### [Jinja](https://github.com/pallets/jinja)
+- Copyright (c) 2007 Pallets
+- [BSD 3-Clause license](https://github.com/pallets/jinja/blob/main/LICENSE.txt)
+
+### [inotify](https://github.com/dsoprea/PyInotify)
+- Copyright (c) [Dustin Oprea](https://github.com/dsoprea) and [other contributors](https://github.com/dsoprea/PyInotify/graphs/contributors)
+- [GPL-2.0 license](https://github.com/dsoprea/PyInotify/blob/master/LICENSE)
+
+### [Flake8](https://github.com/PyCQA/flake8)
+- Copyright (c) 2011-2013 Tarek Ziade <tarek@ziade.org>
+- [Flake8 license (MIT)](https://github.com/PyCQA/flake8/blob/main/LICENSE)
+
+### [pytest](https://github.com/pytest-dev/pytest)
+- Copyright (c) 2004-present [Holger Krekel](https://github.com/hpk42) and [other contributors](https://github.com/pytest-dev/pytest/blob/main/AUTHORS)
+- [MIT license](https://github.com/pytest-dev/pytest/blob/main/LICENSE)
