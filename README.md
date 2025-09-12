@@ -5,6 +5,8 @@ A web service that displays a random image, made primarily to show random pictur
 <p align="center" width="100%">
     <img width="65%" src="docs/screenshot.png" title="Screenshot of randimg instance running at https://kaesebrot.eu/blahaj"></img>
 </p>
+## Deployment
+The service is available as a container on Docker hub: https://hub.docker.com/r/daskaesebrot/randimg
 ```bash
 docker pull daskaesebrot/randimg
 ```
