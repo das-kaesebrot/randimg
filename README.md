@@ -38,6 +38,14 @@ You may configure the web service via environment variables.
 | `RANDIMG_LOG_LEVEL` | The log level (uses `UVICORN_LOG_LEVEL` as fallback if unset, then uses default value) | `INFO` | No |
 | `FORWARDED_ALLOW_IPS` | Reverse proxies to trust (see [Uvicorn docs](https://www.uvicorn.org/settings/)) | `127.0.0.1` | No |
 
+### Additional HTML head/footer tags
+If you'd like to add additional tags in the `<head>` section or `<footer>` section of the rendered page, you may create the following files in the folder `templates/custom`:
+
+| Tag | Filename | Remarks |
+| - | - | - |
+| `<head>` | `head.html` | Inserted before closing `<head>` tag |
+| `<footer>` | `footer.html` | Inserted before closing `<footer>` tag |
+
 ## Open Source License Attribution
 
 This application uses Open Source components. You can find the source code of their open source projects along with license information below. We acknowledge and are grateful to these developers for their contributions to open source.
