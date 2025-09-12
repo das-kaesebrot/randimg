@@ -7,6 +7,7 @@ import inotify.constants
 from PIL import Image
 from typing import Dict, Union
 
+from .constants import Constants
 from .decorators import wait_lock
 from .threading_utils import ThreadingUtils
 from .classes import ImageMetadata
@@ -48,18 +49,17 @@ class Cache:
         filename_to_image: dict[str, Image.Image] = {}
 
         for filename in os.listdir(image_dir):
-            if (
-                filename.lower().endswith(".jpg")
-                or filename.lower().endswith(".jpeg")
-                or filename.lower().endswith(".png")
-            ):
-                try:
-                    img = Image.open(os.path.join(image_dir, filename))
-                    img.load()
-                    filename_to_image[filename] = img
-                except OSError as e:
-                    self._logger.exception(f"Failed loading file '{os.path.join(image_dir, filename)}'")
-                    continue
+            if not os.path.splitext(filename.lower())[1] in Constants.ALLOWED_INPUT_FILE_EXTENSIONS:
+                self._logger.warning(f"Ignoring file '{filename}' because it doesn't have an allowed file extension")
+                continue
+            
+            try:
+                img = Image.open(os.path.join(image_dir, filename))
+                img.load()
+                filename_to_image[filename] = img
+            except OSError as e:
+                self._logger.exception(f"Failed loading file '{os.path.join(image_dir, filename)}'")
+                continue
 
         for filename, image in filename_to_image.items():
             try:
@@ -97,6 +97,11 @@ class Cache:
                                 
                 if (mask & inotify.constants.IN_CLOSE_WRITE) == inotify.constants.IN_CLOSE_WRITE:
                     logger.info(f"Detected new file '{filename}', adjusting cache")
+                    
+                    if not os.path.splitext(filename.lower())[1] in Constants.ALLOWED_INPUT_FILE_EXTENSIONS:
+                        logger.warning(f"Ignoring file '{filename}' because it doesn't have an allowed file extension")
+                        continue
+                    
                     image: Image.Image = None
                     try:
                         image = Image.open(os.path.join(self._image_dir, filename))
