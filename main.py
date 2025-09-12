@@ -20,7 +20,7 @@ cache_dir = os.getenv(f"{ENV_PREFIX}_CACHE_DIR", "cache")
 site_title = os.getenv(f"{ENV_PREFIX}_SITE_TITLE", "Random image")
 site_emoji = os.getenv(f"{ENV_PREFIX}_SITE_EMOJI", "🦈")
 default_card_image_id = os.getenv(f"{ENV_PREFIX}_DEFAULT_CARD_IMAGE")
-loglevel = os.getenv(f"UVICORN_LOG_LEVEL", logging.INFO)
+loglevel = os.getenv(f"{ENV_PREFIX}_LOG_LEVEL", os.getenv("UVICORN_LOG_LEVEL", logging.INFO))
 
 LoggingUtils.setup_logging_with_default_formatter(loglevel=loglevel)
 
