@@ -94,8 +94,9 @@ def get_image_page_response(request: Request, image_id: str, is_direct_request: 
         
         if width == current_width:
             current = True
-        
-        variants.append(ResolutionVariant(width=width, height=height, current=current))
+            
+        filename = os.path.basename(cache.get_filename(id=image_id, width=width, height=height, crop=False, generate_variant_if_missing=False))
+        variants.append(ResolutionVariant(width=width, height=height, current=current, filename=filename))
     
     resolution_data = TemplateResolutionMetadata(current_width=current_width, current_height=current_height, variant_ladder=variants)
     

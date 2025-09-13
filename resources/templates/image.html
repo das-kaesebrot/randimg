@@ -43,16 +43,16 @@ A random image
                         {% for variant in resolution_data.variant_ladder -%}
                         {% if variant.width == resolution_data.current_width -%}
                         <li>
-                            <a id="download" class="dropdown-item" download="{{ image_filename }}">
+                            <a id="download" class="dropdown-item" download="{{ variant.filename }}">
                                 {%- include 'svg/bi-download.svg' %} {{ variant.width }}x{{ variant.height }} (Cached)
                             </a>
                         </li>
                         {% else %}
                         <li>
                             <a class="dropdown-item" 
-                                href="{{ url_for('api_get_image', image_id=image_id).include_query_params(download=True, width=variant.width) }}">
+                                href="{{ url_for('api_get_image', image_id=image_id).include_query_params(width=variant.width) }}" download="{{ variant.filename }}">
                                 {%- include 'svg/bi-download.svg' %} {{ variant.width }}x{{ variant.height }}
-                            </a>                                            
+                            </a>
                         </li>
                         {% endif %}
                         {% endfor %}

@@ -43,6 +43,7 @@ class ResolutionVariant:
     width: int
     height: int
     current: bool
+    filename: str
 
 class FaviconResponse(Response):
     media_type = "image/svg+xml"
