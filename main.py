@@ -12,7 +12,7 @@ from api.classes import FaviconResponse, ResolutionVariant, TemplateResolutionMe
 from api.image_utils import ImageUtils
 from api.constants import Constants
 
-ENV_PREFIX = "RANDIMG"
+ENV_PREFIX = "RANDHAJ"
 
 version = os.getenv("APP_VERSION", "local-dev")
 source_image_dir = os.getenv(f"{ENV_PREFIX}_IMAGE_DIR", "assets/images")
