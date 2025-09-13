@@ -137,8 +137,8 @@ class Cache:
         finally:
             if self._mutex_lock.locked(): self._mutex_lock.release()
 
-    def get_filename_and_generate_copy_if_missing(
-        self, id: str, width: Union[int, None] = None, height: Union[int, None] = None, crop: bool = False
+    def get_filename(
+        self, id: str, width: Union[int, None] = None, height: Union[int, None] = None, crop: bool = False, generate_variant_if_missing: bool = True,
     ) -> str:
         ThreadingUtils.wait_and_acquire_lock(self._mutex_lock)
         metadata = self._ids_to_metadata.get(id)
@@ -156,32 +156,34 @@ class Cache:
                 height=height,
             )
 
-        filename = os.path.join(
+        expected_filename = os.path.join(
             self._cache_dir,
             FilenameUtils.get_filename(
                 id=id, width=width, height=height, format=metadata.format
             ),
         )
+        
+        if os.path.isfile(expected_filename) or not generate_variant_if_missing:
+            return expected_filename
 
-        if not os.path.isfile(filename):
-            source_filename = os.path.join(
-                self._cache_dir,
-                FilenameUtils.get_filename(
-                    id=id,
-                    width=metadata.original_width,
-                    height=metadata.original_height,
-                    format=metadata.format,
-                ),
-            )
-            filename = ImageUtils.write_scaled_copy_from_source_filename_to_filesystem(
+        source_filename = os.path.join(
+            self._cache_dir,
+            FilenameUtils.get_filename(
                 id=id,
-                source_filename=source_filename,
-                output_path=self._cache_dir,
-                width=width,
-                height=height,
-                crop=crop,
-            )
-
+                width=metadata.original_width,
+                height=metadata.original_height,
+                format=metadata.format,
+            ),
+        )
+        filename = ImageUtils.write_scaled_copy_from_source_filename_to_filesystem(
+            id=id,
+            source_filename=source_filename,
+            output_path=self._cache_dir,
+            width=width,
+            height=height,
+            crop=crop,
+        )
+        
         return filename
     
     @wait_lock(_mutex_lock)

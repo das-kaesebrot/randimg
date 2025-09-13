@@ -59,7 +59,7 @@ def get_file_response(*, image_id: str, width: Union[int, None] = None, height: 
         if not width in Constants.ALLOWED_DIMENSIONS:
             raise HTTPException(status_code=400, detail=f"Height is not of allowed value!")
     
-    filename = cache.get_filename_and_generate_copy_if_missing(
+    filename = cache.get_filename(
         image_id, width=width, height=height, crop=is_thumbnail
     )
         
@@ -84,7 +84,7 @@ def get_image_page_response(request: Request, image_id: str, is_direct_request: 
     current_width = Constants.get_default_width()
     metadata = cache.get_metadata(image_id)
     current_width, current_height = ImageUtils.calculate_scaled_size(original_width=metadata.original_width, original_height=metadata.original_height, width=current_width)
-    filename = cache.get_filename_and_generate_copy_if_missing(image_id, width=current_width, height=current_height)
+    filename = cache.get_filename(image_id, width=current_width, height=current_height)
     filename = os.path.basename(filename)
     
     variants = []
