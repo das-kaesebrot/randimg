@@ -7,6 +7,8 @@
     <link rel="shortcut icon" href="{{ url_for('get_favicon') }}">
     <title>{% block title %}{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {% endblock %}
+    {% block opengraph_head %}
     <meta property="og:url" content="{% block opengraph_url %}{{ request.url }}{% endblock %}">
     <meta property="og:type" content="website">
     <meta property="og:title" content="{% block opengraph_title %}{% endblock %}">
