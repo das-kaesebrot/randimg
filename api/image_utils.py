@@ -170,7 +170,7 @@ class ImageUtils:
         image = ImageUtils.resize(image, width, height, copy=False)
         image.format = source.format
         filename = os.path.join(
-            output_path, FilenameUtils.get_filename_with_image_data(id=id, data=image)
+            output_path, FilenameUtils.get_filename(id=id, width=width, height=height, format=image.format)
         )
         image.save(filename)
         return filename
