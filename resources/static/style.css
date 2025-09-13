@@ -9,3 +9,9 @@
         max-height: 50vh;
     }
 }
+
+@media (max-width: 768px) {
+    .btn, .btn-group {
+        width:100%;
+    }
+}
